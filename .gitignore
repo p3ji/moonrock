@@ -1,0 +1,7 @@
+
+.cloudflare-dist/
+.wrangler/
+
+.dev.vars
+.host-access.txt
+.DS_Store

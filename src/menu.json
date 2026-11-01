@@ -1,0 +1,98 @@
+[
+  {
+    "id": "appetizers",
+    "title": "Appetizers",
+    "zh": "开胃菜",
+    "items": [
+      [
+        "Charcuterie board",
+        "冷切拼盘"
+      ]
+    ]
+  },
+  {
+    "id": "mains",
+    "title": "Mains",
+    "zh": "主食",
+    "items": [
+      [
+        "Chili cheese fries",
+        "辣肉酱芝士薯条"
+      ],
+      [
+        "Shawarma wrap",
+        "沙瓦玛卷饼"
+      ],
+      [
+        "Smash burger",
+        "压烤牛肉汉堡"
+      ],
+      [
+        "Crispy chicken",
+        "香脆炸鸡"
+      ],
+      [
+        "Mac & cheese",
+        "芝士通心粉"
+      ]
+    ]
+  },
+  {
+    "id": "drinks",
+    "title": "Drinks",
+    "zh": "饮品",
+    "items": [
+      [
+        "Fruit juice",
+        "果汁",
+        "Apple / Orange",
+        "苹果 / 橙子"
+      ],
+      [
+        "Pop & soda",
+        "汽水",
+        "Coke / Sprite",
+        "可乐 / 雪碧"
+      ],
+      [
+        "Milk",
+        "牛奶",
+        "Chocolate / Fresh",
+        "巧克力奶 / 鲜奶"
+      ],
+      [
+        "Smoothie",
+        "水果冰沙"
+      ],
+      [
+        "Fruit punch",
+        "混合果汁"
+      ],
+      [
+        "Tea",
+        "茶",
+        "Chinese green tea / Red tea / Earl Grey / Orange Pekoe",
+        "中国绿茶 / 红茶 / 伯爵茶 / 橙毫红茶"
+      ]
+    ]
+  },
+  {
+    "id": "desserts",
+    "title": "Desserts",
+    "zh": "甜点",
+    "items": [
+      [
+        "Ice cream",
+        "冰淇淋"
+      ],
+      [
+        "Fruit skewers",
+        "水果串"
+      ],
+      [
+        "Crispy rice squares",
+        "香脆米花方块"
+      ]
+    ]
+  }
+]

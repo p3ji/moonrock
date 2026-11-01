@@ -1,0 +1,17 @@
+{
+  "frames": 8,
+  "frameSize": [
+    320,
+    320
+  ],
+  "frameDurationMs": 80,
+  "foxSheet": "fox-run-sheet.webp",
+  "combinedWebP": "fox-chases-rabbit.webp",
+  "combinedAPNG": "fox-chases-rabbit.png",
+  "combinedSize": [
+    720,
+    460
+  ],
+  "direction": "right",
+  "separateFromSite": true
+}

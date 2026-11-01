@@ -1,0 +1,2 @@
+PASS page 1: US Letter, all fonts embedded, text extractable (289 characters)
+PASS page 2: US Letter, all fonts embedded, text extractable (296 characters)

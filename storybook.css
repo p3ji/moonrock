@@ -1,0 +1,136 @@
+:root{--paper:#f1e8d5;--ink:#302e40;--muted:#716246;--night:#151c35;--line:#c9b78d}.hero{background:radial-gradient(ellipse at 70% 50%,#31314d,transparent 60%),#151c35}.hero:after{content:'';position:absolute;inset:95px 28px 68px;border:1px solid #a78d555c;pointer-events:none;border-radius:150px 150px 4px 4px}.hero-copy{top:28%}.hero h1{font-style:italic;letter-spacing:-5px;color:#f4e4bb}.title-dot{color:#be9f64}.welcome{color:#dbd2bc}.hero-rock{filter:none;transform:none}.rock-wrap{right:3%;width:45%;top:22%}.rock-caption{color:#d2bb83;bottom:2%;right:18%}.orbit{border-color:#c2a26130}.hero-foot{color:#d2bb83;gap:15px}.hero-foot a{padding:12px 0}.hero-coordinate{display:none}.topbar,.brand{color:#e4ce9f}.menu-paper{position:relative;background:var(--paper);border:16px solid #151c35;padding:70px 7% 0}.menu-paper:before{content:'✦';position:absolute;top:18px;left:50%;color:#96733e;font-size:20px}.menu-intro h2{font-style:italic}.menu-nav{border-color:#b89e68}.section-number{color:#95723b}.section-header h2{font-style:italic}.menu-items li{border-top-style:dotted}.closing{border-top:1px solid #b89e68}.site-footer{background:#151c35;color:#d6c59e}.arrival{background:radial-gradient(ellipse at center,#3b3652,#11172f 70%)}.arrival-rock{transform:none}.arrival-title{color:#f4e4bb}.arrival-title>span:last-child{font-style:italic}.arrival a{background:#151c35;color:#f4e4bb}.access-link{background:#f1e8d5}@media(max-width:900px){.hero:after{inset:90px 18px 65px}.rock-wrap{right:-4%;width:53%}.menu-paper{border-width:10px;padding-left:5%;padding-right:5%}}@media(max-width:600px){.hero-copy{top:135px}.hero h1{font-size:20vw;letter-spacing:-3px}.hero:after{inset:91px 13px 64px;border-radius:100px 100px 3px 3px}.rock-wrap{top:430px;right:10%;width:80%;height:300px}.hero-foot{font-size:6px;letter-spacing:0;flex-wrap:wrap;bottom:15px}.hero-foot>span:first-of-type{display:none}.menu-paper{padding-top:55px}.menu-intro h2{font-size:43px}.site-footer{font-size:9px}}@media print{.menu-paper{border:0}.hero:after{display:none}}
+
+/* Galaxy → solar system → Moonrock, 14 seconds. */
+.cosmic-canvas{position:absolute;inset:0;width:100%;height:100%}.arrival{animation:exit-arrival 1s 13s forwards;background:#080d20}.arrival .flight-stars{display:none}.arrival .arrival-rock{animation:storybook-landing 14s cubic-bezier(.2,.65,.15,1) both}.arrival .arrival-title{animation:title-in 1.5s 11.2s forwards}.arrival-label{font-size:0}.arrival-label:after{content:'GALAXIES → SOLAR SYSTEM → MOONROCK';font-size:8px;letter-spacing:2px}.arrival a{background:#151c35e6}@keyframes storybook-landing{0%,57%{opacity:0;transform:translate(-50%,-50%) scale(.005) rotate(-35deg)}64%{opacity:1;transform:translate(-50%,-50%) scale(.03) rotate(-25deg)}85%,100%{opacity:1;transform:translate(-50%,-60%) scale(.9) rotate(0)}}
+.fox-companion{position:fixed;z-index:4;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .35s,top .65s cubic-bezier(.2,.7,.3,1),left .65s,width .65s;filter:drop-shadow(0 8px 7px #151c3526)}.fox-companion.awake{opacity:1;visibility:visible}.fox-companion img{width:100%;height:auto;display:block;transform-origin:50% 85%}.fox-companion span{display:block;text-align:center;color:#79633e;font-family:var(--serif);font-size:15px;font-style:italic;margin-top:4px}.fox-companion.hopping img{animation:fox-hop .7s ease-in-out}.hero-rock{transition:opacity .4s}@keyframes fox-hop{0%,100%{transform:translateY(0) rotate(0)}20%{transform:translateY(3px) scaleY(.9)}50%{transform:translateY(-35px) rotate(-9deg)}80%{transform:translateY(-3px) rotate(3deg)}}@media(max-width:600px){.fox-companion span{font-size:11px}.fox-companion{opacity:.95}}@media(prefers-reduced-motion:reduce){.fox-companion{display:none!important}}@media print{.fox-companion{display:none}}
+
+/* Character performance: layered tail, breathing, stretch and landing sparks. */
+.fox-puppet{position:relative;width:100%;animation:fox-breathe 3s ease-in-out infinite;transform-origin:50% 90%}.fox-puppet .fox-body{clip-path:polygon(0 0,60% 0,60% 46%,80% 65%,90% 100%,0 100%)}.fox-puppet .fox-tail{position:absolute;inset:0;clip-path:polygon(60% 0,100% 0,100% 100%,90% 100%,80% 65%,60% 46%);transform-origin:66% 64%;animation:fox-tail-swish 2.8s ease-in-out infinite}.fox-companion.hopping .fox-puppet{animation:fox-bound .95s cubic-bezier(.35,0,.35,1)}.fox-companion.hopping img{animation:none}.fox-companion.waking .fox-puppet{animation:fox-stretch 1.5s ease-in-out}.fox-blink{position:absolute;left:15.3%;top:14%;width:5%;height:1%;background:#e6ddcd;border-bottom:1px solid #534742;border-radius:50%;opacity:0;animation:fox-blink 5.3s infinite}.fox-sparks{position:absolute;left:50%;top:88%}.fox-sparks i{position:absolute;width:4px;height:4px;background:#d3af63;box-shadow:0 0 8px #e5c684;border-radius:50%;opacity:0}.hopping .fox-sparks i{animation:fox-spark .8s calc(.5s + var(--spark-delay)) ease-out both}@keyframes fox-breathe{50%{transform:translateY(-3px) scale(1.015,1.025)}}@keyframes fox-tail-swish{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(8deg)}}@keyframes fox-stretch{0%{transform:scale(.85,.75) rotate(8deg)}45%{transform:scale(.93,1.12) rotate(-9deg)}70%{transform:scale(1.05,.96)}100%{transform:scale(1)}}@keyframes fox-bound{0%{transform:scale(1.08,.83)}35%{transform:translateY(-65px) rotate(-14deg) scale(.95,1.08)}65%{transform:translateY(-24px) rotate(6deg)}80%{transform:scale(1.12,.82)}100%{transform:scale(1)}}@keyframes fox-blink{0%,44%,48%,100%{opacity:0}45%,47%{opacity:1}}@keyframes fox-spark{0%{opacity:0;transform:translate(0,0) scale(.2)}20%{opacity:1}100%{opacity:0;transform:translate(var(--spark-x),var(--spark-y)) scale(.1)}}
+.fox-companion{display:none!important}.moon-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}.scene-fox{position:fixed;z-index:4;pointer-events:none;transform-origin:50% 80%;will-change:top,left,width,height;transition:opacity .3s}.scene-fox .pose{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .4s}.scene-fox[data-phase="0"] .pose-0,.scene-fox[data-phase="1"] .pose-1,.scene-fox[data-phase="2"] .pose-2{opacity:1}.scene-fox.landed .pose-2{animation:fox-breathe 3s ease-in-out infinite}@media print{.scene-fox,.moon-layer{display:none}}
+.scene-fox{will-change:transform;transition:none}.scene-fox .pose{transition:none;animation:none!important;object-fit:contain}.scene-fox.landed .pose-2{animation:none}
+
+.arrival{animation:exit-arrival 1s 15s forwards}.arrival .arrival-rock{display:none}.arrival .arrival-title{top:72%;animation:title-in 1.4s 13.4s forwards}.arrival-label:after{content:"A SMALL PLACE IN A VERY BIG UNIVERSE"}.arrival .cosmic-canvas{display:block}
+
+.blackhole-stage{height:240svh;position:relative;background:#020208}.blackhole-sticky{position:sticky;top:0;height:100svh;overflow:hidden}.blackhole-view{position:absolute;inset:0}.blackhole-view canvas{display:block;width:100%;height:100%}.blackhole-heading{position:absolute;left:8%;bottom:12%;color:#f1e8d5;pointer-events:none;opacity:calc(1 - var(--plunge,0)*1.8)}.blackhole-heading h1{font:italic clamp(48px,6vw,90px)/1 var(--serif);margin:20px 0}.blackhole-heading>p:last-child{font-size:12px}.blackhole-skip{position:absolute;right:6%;top:32px;color:#f1e8d5;padding:14px;border:1px solid #b89e6855;font-size:11px}.blackhole-credit{position:absolute;bottom:18px;right:24px;font-size:8px;color:#bdb6a6}.arrival{display:none!important}.storybook-unused{display:none}.topbar{top:240svh}.fox-idle .pose-2{animation:fox-idle-life 9s ease-in-out infinite!important}@keyframes fox-idle-life{0%,40%,100%{transform:translateY(0) rotate(0)}20%{transform:translateY(-3px) scale(1.015)}55%,65%{transform:rotate(-4deg) translateY(2px)}58%,62%,68%{transform:rotate(3deg) translateY(-2px)}}
+.scene-fox .pose{transition:opacity .13s ease-out}.fox-idle:after{content:'';position:absolute;left:17%;top:32%;width:5%;height:1%;border-radius:50%;background:#d9cdbb;border-bottom:1px solid #534742;opacity:0;animation:fox-blink 5.3s infinite}
+
+/* The original sleeping fox and moon remain one continuous illustration. */
+.hero-rock.sleeping-fox-scene{opacity:1!important;animation:sleeping-scene-breathe 5s ease-in-out infinite;transform-origin:50% 70%;transition:none}.scene-fox,.moon-layer,.fox-companion{display:none!important}.sleepy-fox-blink{position:absolute;pointer-events:none;z-index:1;border-radius:50%;background:#c4b6a8;opacity:0;animation:sleepy-eye 11s ease-in-out infinite;filter:blur(.4px)}@keyframes sleeping-scene-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.006)}}@keyframes sleepy-eye{0%,78%,83%,100%{opacity:0;transform:scaleY(.15)}80%,81%{opacity:.4;transform:scaleY(.55)}}@media(prefers-reduced-motion:reduce){.sleepy-fox-blink{display:none}}
+/* Reveal only the eye region; the original fox, moon and silhouette never move. */
+.hero-rock.sleeping-fox-scene{animation:none!important;transform:none!important}.fox-eyes-open{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;clip-path:ellipse(16% 8% at 41% 57%);will-change:opacity}.sleepy-fox-blink{display:none!important}
+
+.menu-intro>h2{font:italic 54px var(--serif);margin:0}.menu-intro>h2 span{font:14px var(--sans);margin-left:12px;color:var(--muted)}.menu-columns{padding-bottom:65px}.section-header{margin-bottom:24px}
+
+/* One continuous viewport: event horizon → darkness → crescent → café. */
+.cinema-ready .blackhole-stage{height:300svh;background:linear-gradient(to bottom,#020208 0 45%,#151c35 56%,#151c35 100%);z-index:1}
+/* The arrival preview is taller than a short phone viewport; keep the fox visible below the sticky frame. */
+.cinema-ready .blackhole-sticky{overflow:visible}
+.cinema-ready #home{margin-top:-100svh;position:relative;z-index:2;visibility:hidden}
+.cinema-ready .topbar{top:200svh;z-index:3}
+.landing-preview.hero{position:absolute;inset:0;width:100%;margin:0;z-index:1;pointer-events:none;background:none!important}
+.landing-preview:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,#31314d,transparent 60%),#151c35;opacity:var(--landing-bg,0)}
+.landing-preview .rock-wrap{opacity:var(--landing-moon,0)}
+.landing-preview .hero-copy{opacity:var(--landing-copy,0);transform:translateY(var(--landing-rise,18px))}
+.landing-preview .hero-foot,.landing-preview .stars,.landing-preview .orbit,.landing-preview:after{opacity:var(--landing-copy,0)}
+.blackhole-heading,.blackhole-credit{z-index:2}.blackhole-skip{z-index:3}
+.cinema-ready .blackhole-credit{opacity:calc(1 - var(--plunge,0))}
+@media print{.blackhole-stage,.landing-preview{display:none}.cinema-ready #home{margin:0;visibility:visible}}
+/* End the pinned arrival cleanly before the full, scrollable menu. */
+.cinema-ready #home,.cinema-ready .landing-preview.hero{min-height:100svh}
+.cinema-ready #menu{position:relative;z-index:3;margin-top:-24px;border-top:0;border-radius:24px 24px 0 0;box-shadow:0 -12px 40px #080d2018;scroll-margin-top:24px}
+.cinema-ready #menu:before{top:20px}
+.cinema-ready .site-footer{position:relative;z-index:3}
+@media(max-width:600px){.cinema-ready #menu{margin-top:-18px;border-radius:18px 18px 0 0}.cinema-ready #menu:before{top:18px}}
+
+/* Local design exploration: games as part of a night at Moonrock. */
+.hero-games-link{display:inline-flex;gap:20px;align-items:center;padding:16px 0;margin-left:28px;font-size:12px;color:#d6c59e}.cafe-games{position:relative;z-index:3;background:var(--paper);padding:15px 8% 85px;scroll-margin-top:35px}.games-heading{border-top:1px solid #c9b78d;padding-top:48px;display:flex;justify-content:space-between;align-items:flex-end;gap:25px;margin-bottom:30px}.games-heading .eyebrow{color:#716246}.games-heading h2{font:italic 52px/1.1 var(--serif);margin:15px 0 0}.games-heading>p{font-size:12px;color:var(--muted);line-height:1.9;margin:0}.games-layout{display:grid;grid-template-columns:2fr 1fr;gap:22px}.board-game-feature{display:flex;align-items:center;min-height:290px;background:#19213b;color:#e9d8ad;border:1px solid #b89e68;padding:34px;position:relative;overflow:hidden;transition:background .25s}.board-game-feature:hover{background:#232c49}.board-game-feature:focus-visible{outline-offset:5px}.game-feature-copy{width:55%;position:relative;z-index:1}.game-category{font-size:9px;letter-spacing:1.6px}.game-category span{letter-spacing:0;margin-left:10px}.game-feature-copy h3{font:italic 39px/1.1 var(--serif);margin:27px 0 12px}.game-feature-copy>p{font-size:12px;color:#c8c1ac;line-height:1.7}.game-action{font-size:11px;display:inline-flex;gap:30px;border-bottom:1px solid #a8915c;padding:15px 0;margin-top:12px}.game-art{width:54%;position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:#c3a76c}.game-art svg{width:100%;height:auto}.video-game-preview{border:1px solid #c9b78d;padding:28px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.video-game-preview>svg{width:80px;height:55px;color:#84704b;margin:20px 0}.video-game-preview h3{font:italic 31px var(--serif);margin:0}.video-game-preview p{font-size:11px;color:var(--muted);margin:8px 0 19px}.coming-soon{font-size:9px;letter-spacing:.6px;color:#716246;border:1px solid #c9b78d;padding:6px 9px}@media(max-width:900px){.cafe-games{padding-left:6%;padding-right:6%}.board-game-feature{padding:25px}.game-feature-copy h3{font-size:32px}.game-art{right:-30px;opacity:.75}.game-feature-copy{width:70%}}@media(max-width:600px){.hero-games-link{font-size:11px;margin-left:20px;gap:10px}.cafe-games{padding:0 7% 50px}.games-heading{display:block;padding-top:35px}.games-heading h2{font-size:43px}.games-heading>p{margin-top:17px;font-size:11px}.games-layout{grid-template-columns:1fr;gap:16px}.board-game-feature{min-height:270px;padding:25px}.game-feature-copy{width:68%}.game-feature-copy h3{font-size:34px}.game-art{width:61%;right:-30px;top:45%}.game-action{gap:18px}.video-game-preview{position:relative;padding:25px}.video-game-preview>svg{position:absolute;right:22px;top:25px;margin:0}.video-game-preview h3{margin-top:20px}.video-game-preview p{margin-bottom:15px}}@media print{.cafe-games{break-inside:avoid}}
+
+/* A small storybook crossing between supper and games. */
+.rabbit-crossing{position:relative;z-index:3;height:170px;margin-top:-16px;background:var(--paper);overflow:hidden;--rabbit-distance:1200px;--rabbit-duration:6s}
+.rabbit-track{position:absolute;left:-210px;bottom:-5px;width:210px;height:210px;visibility:hidden;will-change:transform}
+.rabbit-sprite{position:absolute;inset:0;background:url('assets/rabbit/rabbit-run-sheet.webp') 0 0/800% 100% no-repeat}
+.rabbit-running .rabbit-track{visibility:visible;animation:rabbit-cross-page var(--rabbit-duration) linear both}
+.rabbit-running .rabbit-sprite{animation:rabbit-gallop .64s steps(8) infinite}
+.rabbit-ground-shadow{position:absolute;left:50px;right:50px;bottom:22px;height:7px;border-radius:50%;background:#302e4014;filter:blur(3px)}
+.rabbit-finished .rabbit-sprite{animation-play-state:paused}
+@keyframes rabbit-cross-page{from{transform:translateX(0)}to{transform:translateX(var(--rabbit-distance))}}
+@keyframes rabbit-gallop{to{background-position:114.285714% 0}}
+@media(max-width:600px){.rabbit-crossing{height:125px;margin-top:-10px;--rabbit-duration:4.5s}.rabbit-track{width:165px;height:165px;bottom:-5px}.rabbit-ground-shadow{bottom:18px;left:40px;right:40px}}
+@media print{.rabbit-crossing{display:none}}
+
+.fox-eyes-open{clip-path:ellipse(16% 9% at 41% 54%)}
+/* Separate paper panels with a midnight-blue animated interlude. */
+.cinema-ready #menu{border-radius:24px}
+.rabbit-crossing{background:#151c35;margin-top:0;height:180px}
+.rabbit-ground-shadow{background:#0005}
+.cafe-games{border:16px solid #151c35;border-top:0;border-radius:24px 24px 0 0;padding:70px 7% 65px;background:var(--paper)}
+.cafe-games:before{content:'✦';position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:20px;color:#96733e}
+.cafe-games .games-heading{border-top:0;padding-top:0}
+@media(max-width:900px){.cafe-games{border-width:10px;border-top:0;padding-left:5%;padding-right:5%}}
+@media(max-width:600px){.cinema-ready #menu{border-radius:18px}.rabbit-crossing{margin-top:0;height:135px}.cafe-games{border-radius:18px 18px 0 0;padding-top:56px;padding-bottom:45px}.cafe-games:before{top:18px}}
+
+/* Approved integrated three-tail fox: two gradual eye-opening stages. */
+.fox-eyes-half{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;clip-path:ellipse(16% 9% at 41% 56%);will-change:opacity}
+.fox-eyes-open{clip-path:ellipse(16% 9% at 41% 56%)}
+/* A playful chase across the blue interlude. */
+.rabbit-crossing{height:220px;--rabbit-duration:7.5s}
+.rabbit-track{left:-620px;width:600px;height:384px;bottom:-43px}
+.rabbit-sprite{inset:auto;left:404px;top:179px;width:167px;height:167px;animation-delay:-.16s!important}
+.fox-chase-sprite{position:absolute;left:0;top:0;width:358px;height:358px;background:url('assets/chase/fox-run-sheet.webp') 0 0/800% 100% no-repeat}
+.rabbit-running .fox-chase-sprite{animation:rabbit-gallop .64s steps(8) infinite}
+.rabbit-finished .fox-chase-sprite{animation-play-state:paused}
+.rabbit-ground-shadow{display:none}
+@media(max-width:600px){.rabbit-crossing{height:185px;--rabbit-duration:6s}.rabbit-track{left:-500px;width:480px;height:307px;bottom:-34px}.fox-chase-sprite{width:286px;height:286px}.rabbit-sprite{left:323px;top:143px;width:133px;height:133px}}
+
+/* The café signature lives on the menu; both arrival links share one treatment. */
+#menu:before{display:none}.menu-brand{position:absolute;top:23px;left:50%;transform:translateX(-50%);color:#716246;font-size:11px;letter-spacing:2.5px;gap:12px;white-space:nowrap}.menu-brand img{width:32px;height:32px}.menu-paper{padding-top:92px}.hero-games-link{margin-left:28px;padding:15px 0;margin-top:24px;gap:60px;color:inherit}.games-layout{grid-template-columns:1fr}.board-game-feature{min-height:300px}.game-art{width:40%;right:5%}.game-feature-copy{width:58%}
+@media(min-width:601px){.menu-columns:has(#appetizers):has(#mains):has(#drinks):has(#desserts){grid-template-rows:min-content 1fr;row-gap:32px;align-items:start}.menu-columns:has(#appetizers) #appetizers{grid-column:1;grid-row:1}.menu-columns:has(#appetizers) #mains{grid-column:1;grid-row:2}.menu-columns:has(#appetizers) #drinks{grid-column:2;grid-row:1 / span 2}.menu-columns:has(#appetizers) #desserts{grid-column:3;grid-row:1 / span 2}}
+@media(max-width:900px){.game-art{width:43%;right:1%}.game-feature-copy{width:60%}}
+@media(max-width:600px){.menu-paper{padding-top:82px}.menu-brand{top:20px;font-size:10px}.hero-games-link{margin-left:20px;margin-top:14px;padding:12px 0;gap:55px}.game-art{width:60%;right:-30px}.game-feature-copy{width:68%}.game-category{line-height:1.9}.game-category span{display:block;margin-left:0}}
+
+.menu-brand img{filter:brightness(.62)}@media(max-width:600px){.game-art{right:-8px;width:56%}}
+
+/* Café music record toggle (vinyl adapted from visualportfolio) */
+.cafe-record{position:fixed;right:20px;bottom:max(20px,env(safe-area-inset-bottom));z-index:15;width:96px;height:78px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cafe-record:focus-visible{outline:2px solid #bdb6a6;outline-offset:4px;border-radius:12px}
+.cafe-record .record-sleeve{position:absolute;left:0;top:10px;z-index:2;width:58px;height:58px;border-radius:9px;background:linear-gradient(135deg,#242a27 0%,#171b1b 100%);border:1px solid #bdb6a6;display:flex;align-items:center;justify-content:center}
+.cafe-record .record-sleeve img{opacity:.9}
+.cafe-record .record-label{display:flex;align-items:center;justify-content:center;color:#f3efe5}
+.cafe-record .icon-pause{display:none}
+.cafe-record.playing .icon-play{display:none}
+.cafe-record.playing .icon-pause{display:block}
+.cafe-record .record-disc{position:absolute;right:0;top:7px;z-index:1;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at center,#3a4142 0 8%,transparent 8.5%),repeating-radial-gradient(circle at center,#101414 0 2px,#1d2323 2px 4px);border:1px solid #0c0f0f;box-shadow:inset 0 0 6px #000a}
+.cafe-record .record-disc::before{content:"";position:absolute;left:50%;top:8%;width:1.5px;height:26%;transform:translateX(-50%);background:linear-gradient(to bottom,transparent,#ffffff45,transparent)}
+.cafe-record .record-disc::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#f3efe5 0 2.5px,#bdb6a6 3px 7px,#242a27 7.5px)}
+.cafe-record.playing .record-disc{animation:cafe-spin 3s linear infinite}
+.cafe-record:hover .record-disc,.cafe-record:focus-visible .record-disc{animation-duration:1.2s}
+@keyframes cafe-spin{to{transform:rotate(360deg)}}
+@media (max-width:600px){
+.cafe-record{right:14px;bottom:calc(86px + env(safe-area-inset-bottom));width:76px;height:62px}
+.cafe-record .record-sleeve{left:0;top:8px;width:46px;height:46px;border-radius:7px}
+.cafe-record .record-sleeve img{width:16px;height:16px}
+.cafe-record .record-label svg{width:16px;height:16px}
+.cafe-record .record-disc{right:0;top:5px;width:52px;height:52px}
+.cafe-record .record-disc::after{width:14px;height:14px;background:radial-gradient(circle,#f3efe5 0 2px,#bdb6a6 2.5px 5.5px,#242a27 6px)}
+}
+@media (prefers-reduced-motion:reduce){
+.cafe-record.playing .record-disc,.cafe-record:hover .record-disc{animation:none}
+.cafe-record.playing .record-sleeve{border-color:#f3efe5;box-shadow:0 0 10px #bdb6a64d}
+}
+
+/* Keep music discoverable and clear of the cart and nearby order feedback. */
+.cafe-record{height:94px}.music-caption{position:absolute;top:73px;left:0;right:0;margin:auto;width:max-content;max-width:100%;padding:3px 7px;border-radius:4px;background:#151c35;color:#f1e8d5;font:10px/1.4 var(--sans)}.cafe-record.loading .icon-play{display:none}.cafe-record.loading .icon-pause{display:block}
+@media(max-width:700px){.cafe-record{right:14px;bottom:max(16px,env(safe-area-inset-bottom));height:80px}body:has(.cart-bar:not([hidden])) .cafe-record{bottom:calc(160px + env(safe-area-inset-bottom))}}
+@media(max-width:600px){.music-caption{top:58px}}
+@media print{.cafe-record{display:none}}
+
+/* A compact sound toggle shares the bottom row with the order bar on phones. */
+.mobile-sound-icon{display:none}
+@media(max-width:700px){
+ .cafe-record,body:has(.cart-bar:not([hidden])) .cafe-record{width:44px;height:44px;right:max(14px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));display:grid;place-items:center;border:1px solid #b7a176;border-radius:50%;background:#19213b;color:#f1e8d5;box-shadow:0 3px 12px #0002;touch-action:manipulation}
+ .cafe-record .record-sleeve,.cafe-record .record-disc,.cafe-record .music-caption{display:none}
+ .cafe-record .mobile-sound-icon{display:block}.cafe-record .sound-on{display:none}.cafe-record.playing .sound-on{display:block}.cafe-record.playing .sound-off{display:none}
+ .cafe-record[aria-busy=true]{border-style:dashed}
+ body .cart-bar{left:calc(50% - 28px);max-width:calc(100% - 92px);min-height:48px;padding:12px 18px;white-space:normal;font-size:12px;line-height:1.5}
+}
+@media print{.cafe-record{display:none}}

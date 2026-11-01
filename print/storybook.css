@@ -1,0 +1,5 @@
+.sheet{background:#f3ecdE;color:#302e40;border:12px solid #19213c;padding:.42in .52in}.print-header h1{font-style:italic;color:#33304b}.print-header img{transform:none}.print-rule{border-color:#b29a65;color:#745b30}.print-section h2{font-style:italic}.print-section li{border-bottom:1px dotted #bdab84}.sheet footer{border-color:#b29a65}.print-subtitle,.print-note{color:#665434}.print-note em{color:#302e40}
+
+/* Keep appetizers, mains and desserts comfortably above the front footer. */
+.print-header{height:1.3in}.print-rule{margin:14px 0 18px}.print-section h2{font-size:25pt;margin-bottom:7px}.print-section+.print-section{margin-top:17px}.print-section li{padding:8px 0}.sheet:nth-child(2) .print-section li{padding:13px 0}.options{flex-wrap:wrap;gap:5px 14px;line-height:1.6}.options span{max-width:100%}
+.print-order{border-color:#b29a65;background:rgba(255,255,255,0.45);border-radius:4px}.order-heading{color:#745b30}.order-title{font-style:italic;color:#33304b}.order-url{color:#19213c}

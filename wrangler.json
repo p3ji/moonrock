@@ -1,0 +1,25 @@
+{
+  "name": "moonrock-cafe",
+  "account_id": "02080b986c86400a53903f503fba7446",
+  "compatibility_date": "2026-10-29",
+  "assets": {
+    "directory": "./.cloudflare-dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "routes": [
+    {
+      "pattern": "cafe.peji.ca",
+      "custom_domain": true
+    }
+  ],
+  "main": "worker.mjs",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "moonrock-orders",
+      "database_id": "1faacea9-049c-48ea-b218-c3063c4cf995",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

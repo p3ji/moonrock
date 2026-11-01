@@ -1,0 +1,17 @@
+{
+  "tool": "Built-in image generation",
+  "approvedArtworkPrompt": "Use this supplied ORIGINAL sleeping fox-on-moon illustration as the strict visual reference. Repaint ONLY the fox as a naturally THREE-TAILED fox, anatomically conceived as one coherent character from the start. NOT a normal fox with two tails pasted on. All three tails emerge together from the same rear haunch on the right and flow in one harmonious compact sleeping curl. One main fluffy tail wraps across the foreground as in the original; the other TWO tails are slightly slimmer, nestled close alongside and behind that main curl, with only two modest separate tapered tips visible near the lower-right/front edge of the curl. Three identifiable tips total, but a quiet overall silhouette, NOT three large hanging ribbons, NOT a dramatic fan, NOT extra feathers below the moon, NOT a larger body. Blend the tail roots naturally into the rump with consistent fur direction and soft shaded overlap. Keep the original fox's exact small sleeping face, closed eyes, head resting on forepaws, pointed ears, gentle rounded back and restful proportions. Preserve the original fine matte engraved gouache fur, warm ivory-silver with pale dusty lavender shadows, delicate softness and muted colors. Preserve gold crescent, botanical sprigs, flowers, three stars, layout and transparent background exactly; no extra gold saturation, no shininess or heavier outlines. The result should read as almost the same original illustration, but the curled fox naturally has three softly interwoven tails. No wings, accessories, new characters, or text. Keep all tips within frame.",
+  "halfOpenPrompt": "Edit this exact supplied three-tailed sleeping fox-on-moon illustration for an animation. Change ONLY its two closed eyelids into very slightly HALF-OPEN sleepy amber eyes, just narrow slits as it begins waking. The face stays relaxed and the head remains resting on its paws, no lifting or movement. All other pixels must remain aligned: same ears, muzzle, paws, exact naturally curled three-tail arrangement, fine soft gouache fur, gold moon, flowers, stars and frame. No change of style, color, composition or dimensions. Preserve actual transparency. The only visible change should be two small half-open eyelid shapes.",
+  "fullyOpenPrompt": "Edit this exact supplied three-tailed sleeping fox-on-moon illustration for an animation. Change ONLY its two closed eyelids into gently OPEN amber-brown eyes, relaxed and drowsy, looking softly toward the viewer. Do not widen the eyes dramatically. The head stays at exactly the same angle, resting on its paws, no lifting or movement. Preserve every other detail and alignment: same ears, muzzle, paws, naturally compact curled THREE tails, soft engraved gouache fur, muted original colors, gold moon, flowers and three stars. No fourth tail or other changes. Same exact canvas size, framing and actual transparent background. This is the final eyes-open animation frame; only the eye areas may change.",
+  "sourceFiles": [
+    "natural-three-tails-source.png",
+    "eyes-half-source.png",
+    "eyes-open-source.png"
+  ],
+  "runtimeFiles": [
+    "natural-three-tails.webp",
+    "eyes-half.webp",
+    "eyes-open.webp"
+  ],
+  "behavior": "The sleeping base stays fixed. Masked half-open and open overlays blend progressively over 280px of landing-page scroll after a 40px pause."
+}

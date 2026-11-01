@@ -1,0 +1,16 @@
+import {cpSync,mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url)),out=root+'.cloudflare-dist/';
+rmSync(out,{recursive:true,force:true});mkdirSync(out,{recursive:true});
+for(const name of ['style.css','storybook.css','blackhole.js','fox-scene.js','orders.js','orders.css','rabbit.js','cafe-music.js','back.html','back.js','back.css','assets/space','assets/fonts','assets/music','output/pdf','print'])cpSync(root+name,out+name,{recursive:true});
+for(const name of ['blackhole.glb','blackhole-CREDITS.txt','fox-three-tails-v2.webp','fox-three-tails-v2-eyes-open.webp','storybook.webp','storybook-eyes-open.webp','emblem.svg','order-ping.mp3','qr.svg','qr.png'])cpSync(root+'assets/'+name,out+'assets/'+name);
+mkdirSync(out+'assets/fox-natural',{recursive:true});
+for(const name of ['natural-three-tails.webp','eyes-half.webp','eyes-open.webp'])cpSync(root+'assets/fox-natural/'+name,out+'assets/fox-natural/'+name);
+mkdirSync(out+'assets/chase',{recursive:true});
+cpSync(root+'assets/chase/fox-run-sheet.webp',out+'assets/chase/fox-run-sheet.webp');
+mkdirSync(out+'assets/rabbit',{recursive:true});
+cpSync(root+'assets/rabbit/rabbit-run-sheet.webp',out+'assets/rabbit/rabbit-run-sheet.webp');
+for(const name of ['CormorantGaramond.ttf','NotoSansSC.ttf'])rmSync(out+'assets/fonts/'+name,{force:true});
+const html=readFileSync(root+'storybook.html','utf8').replace('<a href="index.html#menu">Compare: Lunar café ↗</a>','');
+writeFileSync(out+'index.html',html);writeFileSync(out+'storybook.html',html);
+console.log('Prepared storybook café for Cloudflare.');

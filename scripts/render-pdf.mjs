@@ -1,0 +1,14 @@
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const root=fileURLToPath(new URL('../',import.meta.url));
+const browser=await chromium.launch({headless:true, executablePath:process.env.CHROMIUM_PATH || undefined});
+const page=await browser.newPage();
+const variant=process.argv.includes('--lunar')?'menu':'storybook';
+const output=variant==='storybook'?'moonrock-storybook-menu':'moonrock-menu';
+await page.goto(new URL('../print/'+variant+'.html',import.meta.url).href);
+await page.evaluate(()=>document.fonts.ready);
+await page.pdf({path:root+'output/pdf/'+output+'.pdf',format:'Letter',printBackground:true,preferCSSPageSize:true});
+await browser.close();
+console.log('Rendered output/pdf/'+output+'.pdf');

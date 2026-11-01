@@ -1,0 +1,39 @@
+PASS 375px: wordmark fits
+PASS 375px: no horizontal overflow
+PASS 375px: reduced motion hides arrival
+PASS 375px: all 13 menu items
+PASS 768px: wordmark fits
+PASS 768px: no horizontal overflow
+PASS 768px: reduced motion hides arrival
+PASS 768px: all 13 menu items
+PASS 1440px: wordmark fits
+PASS 1440px: no horizontal overflow
+PASS 1440px: reduced motion hides arrival
+PASS 1440px: all 13 menu items
+PASS first visit starts arrival
+PASS arrival completes automatically
+PASS same session skips arrival
+PASS replay starts arrival
+PASS skip focuses menu
+PASS Escape dismisses arrival
+PASS menu consistent: Chili cheese fries
+PASS menu consistent: Shawarma wrap
+PASS menu consistent: Smash burger
+PASS menu consistent: Crispy chicken
+PASS menu consistent: Mac & cheese
+PASS menu consistent: Fruit juice
+PASS menu consistent: Pop & soda
+PASS menu consistent: Milk
+PASS menu consistent: Smoothie
+PASS menu consistent: Fruit punch
+PASS menu consistent: Ice cream
+PASS menu consistent: Fruit skewers
+PASS menu consistent: Crispy rice squares
+PASS print sheet content clears footer
+PASS no JavaScript errors
+PASS no JavaScript: complete menu visible
+PASS missing image: menu available
+PASS missing image: arrival cannot stay stuck
+PASS blocked storage: skip still works
+PASS slow image: menu in HTML immediately
+PASS slow image: skip does not wait

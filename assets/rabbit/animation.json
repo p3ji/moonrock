@@ -1,0 +1,15 @@
+{
+  "name": "Moonrock rabbit run",
+  "frames": 8,
+  "frameWidth": 320,
+  "frameHeight": 320,
+  "frameDurationMs": 80,
+  "durationMs": 640,
+  "direction": "right",
+  "layout": "horizontal",
+  "transparent": true,
+  "anchor": "bottom-center",
+  "sheet": "rabbit-run-sheet.webp",
+  "webp": "rabbit-run.webp",
+  "apng": "rabbit-run.png"
+}
