@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 792" fill="#a58a52">
+  <defs><path id="star" d="M0-4 1-1 4 0 1 1 0 4-1 1-4 0-1-1Z"/></defs>
+  <use href="#star" transform="translate(32 440) scale(.7)"/>
+  <use href="#star" transform="translate(577 444) scale(.8)"/>
+  <use href="#star" transform="translate(46 681) scale(.7)"/>
+  <use href="#star" transform="translate(500 716) scale(.9)"/>
+  <use href="#star" transform="translate(558 656) scale(.6)"/>
+  <use href="#star" transform="translate(133 729) scale(.6)"/>
+</svg>

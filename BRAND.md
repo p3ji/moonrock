@@ -25,7 +25,7 @@ Use ink and muted text on paper. Use paper and pale silver text on night. Silver
 
 ## Voice
 
-Short and hospitable: “You made it. Make yourself at home.” “Another helping? Just ask.” No made-up ingredients, dietary guarantees, prices, or grand claims. This is a home café, with no business address or operating hours.
+Short and hospitable: “You made it. Make yourself at home.” No made-up ingredients, dietary guarantees, prices, or grand claims. This is a home café, with no business address or operating hours.
 
 ## Motion
 

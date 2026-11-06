@@ -1,0 +1,54 @@
+@font-face{font-family:Moonrock Serif;src:url('../assets/fonts/cormorant-print-400.ttf') format('truetype');font-weight:400}
+@font-face{font-family:Moonrock Serif;src:url('../assets/fonts/cormorant-print-500.ttf') format('truetype');font-weight:500}
+@font-face{font-family:Moonrock Sans;src:url('../assets/fonts/noto-print-400.ttf') format('truetype');font-weight:400}
+@font-face{font-family:Moonrock Sans;src:url('../assets/fonts/noto-print-500.ttf') format('truetype');font-weight:500}
+:root{--paper:#f3ecdc;--ink:#222740;--night:#18213b;--gold:#c8a966;--gold-dark:#785d31;--muted:#625b4c;--rule:#d6c9aa}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{color:var(--ink);background:#d8d7d2;font-family:Moonrock Sans,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.toolbar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;align-items:center;gap:24px;padding:12px;background:var(--night);color:var(--paper);font-size:10pt}
+.toolbar button{border:1px solid var(--gold);padding:9px 18px;background:var(--paper);color:var(--ink);font:inherit;cursor:pointer}
+main{padding:24px 0}
+.sheet{position:relative;width:8.5in;height:11in;margin:0 auto 24px;padding:.48in .54in .46in;overflow:hidden;background:var(--paper)}
+.sheet::before{position:absolute;z-index:0;content:"";inset:.28in;border:1px solid rgba(24,33,59,.68);pointer-events:none}
+.sheet::after{position:absolute;z-index:0;content:"";inset:0;opacity:.24;background:url('menu-stars.svg') center/100% 100% no-repeat;pointer-events:none}
+.sheet>*{position:relative;z-index:1}
+.hero{position:relative;height:1.55in;display:flex;align-items:center;overflow:hidden;padding:.16in .24in;background:var(--night);color:var(--paper)}
+.hero::after{position:absolute;content:"";width:2.65in;height:1.46in;right:.43in;top:.02in;border:1px solid rgba(200,169,102,.44);border-radius:50%;transform:rotate(-18deg)}
+.hero-copy{position:relative;z-index:2;width:63%}
+.eyebrow{margin:0 0 6px;color:var(--gold);font-size:7pt;font-weight:500;letter-spacing:2px;text-transform:uppercase}
+.hero h1{margin:0;color:var(--paper);font:400 38pt/.96 Moonrock Serif,Georgia,serif;letter-spacing:-1px}
+.hero h1 span{color:var(--gold)}
+.descriptor{display:flex;align-items:center;gap:9px;margin:10px 0 0;color:#ddd1b7;font-size:7.5pt;letter-spacing:1.35px;text-transform:uppercase}
+.descriptor::before{content:"";width:.3in;border-top:1px solid var(--gold)}
+.hero-art{position:absolute;z-index:2;right:.57in;top:.07in;width:1.48in;height:1.4in;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.38))}
+.hero-mark{position:absolute;z-index:3;right:.13in;top:.12in;width:25px;height:25px;opacity:.66;filter:brightness(0) saturate(100%) invert(80%) sepia(21%) saturate(712%) hue-rotate(2deg) brightness(88%)}
+.columns{display:grid;grid-template-columns:1.45fr 1fr;gap:.28in;margin-top:.22in}
+.food-column{min-width:0}
+.drink-column{min-width:0;padding-left:.23in;border-left:1px solid var(--rule)}
+.menu-section+.menu-section{margin-top:.12in}
+.section-head{display:flex;align-items:baseline;gap:9px;margin:0 0 3px;padding:0 0 5px;border-bottom:1px solid var(--gold-dark)}
+.section-number{color:var(--gold-dark);font-size:6.5pt;letter-spacing:1px}
+.section-head h2,.drink-head h2{margin:0;font:italic 500 19pt/1 Moonrock Serif,Georgia,serif}
+.section-orbit{display:block;width:.12in;height:.12in;flex:0 0 .12in;margin-left:auto;object-fit:contain;align-self:center}
+.menu-list{list-style:none;margin:0;padding:0}
+.menu-item,.drink-item{display:block;min-height:.57in;padding:9px 5px 10px;border-bottom:1px dotted var(--rule);break-inside:avoid}
+.item-name{font-size:11.5pt;font-weight:500;line-height:1.2}
+.choices{margin-top:2px;color:var(--muted);font-size:9pt;line-height:1.3}
+.drink-head{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;padding:0 0 5px;border-bottom:1px solid var(--gold-dark)}
+.drink-head .section-number{color:var(--gold-dark);font-size:6.5pt}
+.drink-head h2{font-size:19pt}
+.drink-item{min-height:.57in;padding:9px 5px 10px}
+.drink-item .item-name{font-size:11.5pt}
+.drink-item .choices{font-size:9pt;line-height:1.4}
+.qr-card{display:flex;width:min(3in,100%);align-items:center;gap:8px;margin:.2in auto 0;padding:5px 7px;border:1px solid var(--rule);background:rgba(255,255,255,.27);break-inside:avoid}
+.qr-card img{display:block;width:.6in;height:.6in;flex:0 0 .6in}
+.qr-card p{margin:0}
+.qr-label{color:var(--gold-dark);font-size:6pt;letter-spacing:1.1px;text-transform:uppercase}
+.qr-title{margin:2px 0!important;font:italic 500 12pt/1.05 Moonrock Serif,Georgia,serif}
+.qr-url{font-size:7pt;font-weight:500;overflow-wrap:anywhere}
+.qr-desc{margin-top:2px!important;color:var(--muted);font-size:7pt;line-height:1.25}
+.footer{position:absolute;right:.54in;bottom:.4in;left:.54in;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);padding-top:8px;color:var(--muted);font-size:6.5pt;letter-spacing:1.3px;text-transform:uppercase}
+.brand-mini{color:var(--ink);font-weight:500;letter-spacing:2px}
+@page{size:8.5in 11in;margin:0}
+@media print{html,body{width:8.5in;height:11in;background:var(--paper)}.toolbar{display:none!important}main{margin:0;padding:0}.sheet{margin:0}}

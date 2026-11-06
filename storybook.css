@@ -124,6 +124,19 @@
 @media(max-width:600px){.music-caption{top:58px}}
 @media print{.cafe-record{display:none}}
 
+/* Give the menu a centered editorial frame while keeping item lists easy to scan. */
+.menu-paper{width:min(100%,1560px);margin-inline:auto;padding-left:clamp(28px,6vw,92px);padding-right:clamp(28px,6vw,92px)}
+.menu-intro{display:block;text-align:center;margin-inline:auto}
+.menu-intro>h2{text-align:center}
+.menu-nav{justify-content:center;gap:clamp(12px,2vw,30px)}
+.menu-nav .pdf-link{margin-left:clamp(12px,3vw,42px)}
+.menu-columns{max-width:1320px;margin-inline:auto;column-gap:clamp(24px,3.3vw,52px)}
+.section-header{text-align:center}
+.section-number{text-align:center}
+.section-header h2{justify-content:center}
+.menu-items{text-align:left}
+@media(max-width:600px){.menu-nav{justify-content:space-between;gap:0}.menu-nav .pdf-link{margin-left:0}.menu-columns{max-width:440px}}
+
 /* A compact sound toggle shares the bottom row with the order bar on phones. */
 .mobile-sound-icon{display:none}
 @media(max-width:700px){

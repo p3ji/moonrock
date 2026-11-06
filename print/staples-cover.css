@@ -1,0 +1,6 @@
+.back-cover{display:grid;place-items:center;padding:0;background:var(--night)}
+.back-cover::before,.back-cover::after{display:none}
+.cover-lockup{display:flex;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cover-lockup h1{margin:0 0 .12in;color:var(--paper);font:400 46pt/.95 Moonrock Serif,Georgia,serif;letter-spacing:-1px}
+.cover-lockup img{display:block;width:6.1in;height:6.1in;object-fit:contain}
+@media print{.back-cover{break-before:page;page-break-before:always}}

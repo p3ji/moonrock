@@ -12,6 +12,18 @@
           "en": "Charcuterie board",
           "zh": "冷切拼盘",
           "options": []
+        },
+        {
+          "id": "appetizers-2",
+          "en": "Chicken wings",
+          "zh": "鸡翅",
+          "options": []
+        },
+        {
+          "id": "mains-1",
+          "en": "Chili cheese fries",
+          "zh": "辣肉酱芝士薯条",
+          "options": []
         }
       ]
     },
@@ -21,33 +33,38 @@
       "zh": "主食",
       "items": [
         {
-          "id": "mains-1",
-          "en": "Chili cheese fries",
-          "zh": "辣肉酱芝士薯条",
-          "options": []
-        },
-        {
           "id": "mains-2",
-          "en": "Shawarma wrap",
+          "en": "Shawarma",
           "zh": "沙瓦玛卷饼",
-          "options": []
+          "options": [
+            {
+              "id": "option-1",
+              "en": "Beef",
+              "zh": "牛肉"
+            },
+            {
+              "id": "option-2",
+              "en": "Chicken",
+              "zh": "鸡肉"
+            }
+          ]
         },
         {
           "id": "mains-3",
-          "en": "Smash burger",
-          "zh": "压烤牛肉汉堡",
+          "en": "Lasagna",
+          "zh": "千层面",
           "options": []
         },
         {
           "id": "mains-4",
-          "en": "Crispy chicken",
-          "zh": "香脆炸鸡",
+          "en": "Cheese pizza",
+          "zh": "芝士披萨",
           "options": []
         },
         {
           "id": "mains-5",
-          "en": "Mac & cheese",
-          "zh": "芝士通心粉",
+          "en": "Caesar salad",
+          "zh": "凯撒沙拉",
           "options": []
         }
       ]
@@ -76,8 +93,8 @@
         },
         {
           "id": "drinks-2",
-          "en": "Pop & soda",
-          "zh": "汽水",
+          "en": "Soft drinks",
+          "zh": "软饮",
           "options": [
             {
               "id": "option-1",
@@ -88,36 +105,23 @@
               "id": "option-2",
               "en": "Sprite",
               "zh": "雪碧"
-            }
-          ]
-        },
-        {
-          "id": "drinks-3",
-          "en": "Milk",
-          "zh": "牛奶",
-          "options": [
-            {
-              "id": "option-1",
-              "en": "Chocolate",
-              "zh": "巧克力奶"
             },
             {
-              "id": "option-2",
-              "en": "Fresh",
-              "zh": "鲜奶"
+              "id": "option-3",
+              "en": "Dr Pepper",
+              "zh": "胡椒博士"
+            },
+            {
+              "id": "option-4",
+              "en": "Bubly",
+              "zh": "气泡水"
             }
           ]
         },
         {
           "id": "drinks-4",
-          "en": "Smoothie",
-          "zh": "水果冰沙",
-          "options": []
-        },
-        {
-          "id": "drinks-5",
-          "en": "Fruit punch",
-          "zh": "混合果汁",
+          "en": "Mango banana smoothie",
+          "zh": "芒果香蕉冰沙",
           "options": []
         },
         {
@@ -146,6 +150,20 @@
               "zh": "橙毫红茶"
             }
           ]
+        },
+        {
+          "id": "drinks-7",
+          "en": "Coffee (18+)",
+          "zh": "咖啡（18+）",
+          "options": [
+            {"id":"option-1","en":"Espresso","zh":"意式浓缩"},
+            {"id":"option-2","en":"Coffee","zh":"咖啡"},
+            {"id":"option-3","en":"Americano","zh":"美式咖啡"},
+            {"id":"option-4","en":"Cappuccino","zh":"卡布奇诺"},
+            {"id":"option-5","en":"Latte macchiato","zh":"拿铁玛奇朵"},
+            {"id":"option-6","en":"Caffè latte","zh":"拿铁"},
+            {"id":"option-7","en":"Café au lait","zh":"牛奶咖啡"}
+          ]
         }
       ]
     },
@@ -156,20 +174,20 @@
       "items": [
         {
           "id": "desserts-1",
-          "en": "Ice cream",
-          "zh": "冰淇淋",
+          "en": "Ice cream cake",
+          "zh": "冰淇淋蛋糕",
           "options": []
         },
         {
           "id": "desserts-2",
-          "en": "Fruit skewers",
-          "zh": "水果串",
+          "en": "Fruit plate",
+          "zh": "水果拼盘",
           "options": []
         },
         {
           "id": "desserts-3",
-          "en": "Crispy rice squares",
-          "zh": "香脆米花方块",
+          "en": "Lokma",
+          "zh": "土耳其炸面团",
           "options": []
         }
       ]

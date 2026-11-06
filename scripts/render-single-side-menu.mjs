@@ -1,0 +1,26 @@
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+const catalog = JSON.parse(readFileSync(path.join(root, 'src/catalog.json'), 'utf8'));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const options = (item) => item.options?.length ? `<div class="choices">${item.options.map((x) => esc(x.en)).join(' / ')}</div>` : '';
+const foodItems = (section) => section.items.map((item) => `<li class="menu-item"><div class="item-name">${esc(item.en)}</div>${options(item)}</li>`).join('');
+const drinkItems = (section) => section.items.map((item) => `<li class="drink-item"><div class="item-name">${esc(item.en)}</div>${options(item)}</li>`).join('');
+const sections = catalog.sections;
+const food = sections.filter((x) => ['appetizers','mains','desserts'].includes(x.id));
+const drinks = sections.find((x) => x.id === 'drinks');
+if (food.length !== 3 || !drinks) throw new Error('Menu sections missing from src/catalog.json');
+const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Moonrock — Theo’s 13th Birthday Menu</title><link rel="stylesheet" href="staples-single-side.css"></head><body><div class="toolbar"><span>US Letter · portrait · single-sided</span><button onclick="window.print()">Print / save PDF</button></div><main><article class="sheet"><header class="hero"><p class="star-dot one"></p><p class="star-dot two"></p><p class="star-dot three"></p><div class="hero-copy"><p class="eyebrow">THEO’S 13TH BIRTHDAY</p><h1>Moonrock Cafe</h1><p class="descriptor">The menu</p></div><img class="hero-art" src="../assets/moonrock.webp" alt="Textured lunar asteroid"><img class="hero-mark" src="../assets/emblem.svg" alt=""></header><div class="columns"><div class="food-column">${food.map((s,i)=>`<section class="menu-section"><header class="section-head"><span class="section-number">0${i+1}</span><h2>${esc(s.title)}</h2><img class="section-orbit" src="../assets/section-sparkle.svg" alt=""></header><ul class="menu-list">${foodItems(s)}</ul></section>`).join('')}</div><aside class="drink-column"><header class="drink-head"><span class="section-number">04</span><h2>Drinks</h2></header><ul class="menu-list">${drinkItems(drinks)}</ul></aside></div><div class="qr-card"><img src="../assets/qr.svg" alt="QR code for cafe.peji.ca"><div><p class="qr-label">Order at your table</p><p class="qr-title">Scan to order</p><p class="qr-url">cafe.peji.ca</p><p class="qr-desc">Send orders straight to the kitchen.</p></div></div><footer class="footer"><span class="brand-mini">MOONROCK</span><span>GOOD FOOD · FAMILIAR FACES</span></footer></article></main></body></html>`;
+const htmlPath=path.join(root,'print/staples-single-side.html');
+const pdfPath=path.join(root,'output/pdf/moonrock-theo-single-side.pdf');
+writeFileSync(htmlPath,html);mkdirSync(path.dirname(pdfPath),{recursive:true});
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'/Users/pushp/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||'/Users/pushp/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell'});
+const page=await browser.newPage({viewport:{width:816,height:1056}});
+await page.goto(new URL('../print/staples-single-side.html',import.meta.url).href);await page.evaluate(()=>document.fonts.ready);
+await page.pdf({path:pdfPath,printBackground:true,preferCSSPageSize:true,tagged:true});await browser.close();
+console.log('Rendered print/staples-single-side.html and output/pdf/moonrock-theo-single-side.pdf');

@@ -3,3 +3,5 @@
 /* Keep appetizers, mains and desserts comfortably above the front footer. */
 .print-header{height:1.3in}.print-rule{margin:14px 0 18px}.print-section h2{font-size:25pt;margin-bottom:7px}.print-section+.print-section{margin-top:17px}.print-section li{padding:8px 0}.sheet:nth-child(2) .print-section li{padding:13px 0}.options{flex-wrap:wrap;gap:5px 14px;line-height:1.6}.options span{max-width:100%}
 .print-order{border-color:#b29a65;background:rgba(255,255,255,0.45);border-radius:4px}.order-heading{color:#745b30}.order-title{font-style:italic;color:#33304b}.order-url{color:#19213c}
+.print-section h2{justify-content:center;text-align:center}.print-section ul{text-align:left}
+.sheet{border:0;padding:.52in .62in}.sheet::before{content:"";position:absolute;inset:.16in;border:1px solid #19213c;pointer-events:none}
