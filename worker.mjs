@@ -26,6 +26,10 @@ try{
   if(!result.meta.changes){const existing=await env.DB.prepare('SELECT id FROM orders WHERE request_id=?').bind(requestId).first();if(existing)return json({id:existing.id});fail('This order round has closed. Refresh the menu.',409)}
   return json({id},201)
  }
+ if(path==='/api/iot/orders'&&req.method==='GET'){
+  const latest=await env.DB.prepare('SELECT id, created_at, guest_name FROM orders ORDER BY created_at DESC, rowid DESC LIMIT 1').first();
+  return json({ok:true,latest:latest||null})
+ }
  if(path==='/api/back/login'&&req.method==='POST'){
   if(env.HOST_OPEN==='true')return json({ok:true});if(!env.HOST_PASSCODE)fail('Host access has not been configured.',503);
   const key=await sha(req.headers.get('CF-Connecting-IP')||'local'),window=Math.floor(Date.now()/900000);const attempt=await env.DB.prepare('SELECT count,window FROM login_attempts WHERE key=?').bind(key).first();if(attempt&&attempt.window===window&&attempt.count>=10)fail('Too many attempts. Try again in 15 minutes.',429);

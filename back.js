@@ -8,8 +8,8 @@ function updateSoundButton(){const b=$('#sound-toggle');if(!b)return;const needs
 function unlockAudio(){if(audioUnlocked)return;try{chime.load();const p=chime.play();if(p){p.then(()=>{chime.pause();chime.currentTime=0;audioUnlocked=true;updateSoundButton()}).catch(()=>{})}else{audioUnlocked=true;updateSoundButton()}}catch{}window.removeEventListener('pointerdown',unlockAudio);window.removeEventListener('keydown',unlockAudio)}
 window.addEventListener('pointerdown',unlockAudio,{passive:true});window.addEventListener('keydown',unlockAudio,{passive:true});
 function playChime(){if(!soundEnabled)return;try{chime.currentTime=0}catch{}try{const p=chime.play();if(p){p.then(()=>{audioUnlocked=true;updateSoundButton()}).catch(err=>{if(err.name==='NotAllowedError'){audioUnlocked=false;updateSoundButton()}})}}catch{}}
-function triggerSmartSwitchAlert(durationSec=3){try{fetch(`http://localhost:8088/pulse?duration=${durationSec}`,{method:'POST',mode:'cors'}).catch(()=>{})}catch{}}
-function notifyNewOrder(){triggerSmartSwitchAlert(3);setTimeout(()=>{playChime()},3000)}
+function triggerSmartSwitchAlert(durationSec=5){try{fetch(`http://localhost:8088/pulse?duration=${durationSec}`,{method:'POST',mode:'cors'}).catch(()=>{})}catch{}}
+function notifyNewOrder(){triggerSmartSwitchAlert(5);setTimeout(()=>{playChime()},5000)}
 const message=(s,error=false)=>{if($('#message').textContent!==s)$('#message').textContent=s;$('#message').className=error?'error':''};
 const setText=(selector,value)=>{const e=$(selector),s=String(value);if(e.textContent!==s)e.textContent=s};
 function focusNear(el,scroll=false){if(!el?.isConnected)return;if(!el.matches('button,input,a,select,textarea'))el.setAttribute('tabindex','-1');el.focus({preventScroll:true});if(scroll)el.scrollIntoView({behavior:motion(),block:'nearest'})}
