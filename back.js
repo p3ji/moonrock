@@ -8,8 +8,9 @@ function updateSoundButton(){const b=$('#sound-toggle');if(!b)return;const needs
 function unlockAudio(){if(audioUnlocked)return;try{chime.load();const p=chime.play();if(p){p.then(()=>{chime.pause();chime.currentTime=0;audioUnlocked=true;updateSoundButton()}).catch(()=>{})}else{audioUnlocked=true;updateSoundButton()}}catch{}window.removeEventListener('pointerdown',unlockAudio);window.removeEventListener('keydown',unlockAudio)}
 window.addEventListener('pointerdown',unlockAudio,{passive:true});window.addEventListener('keydown',unlockAudio,{passive:true});
 function playChime(){if(!soundEnabled)return;try{chime.currentTime=0}catch{}try{const p=chime.play();if(p){p.then(()=>{audioUnlocked=true;updateSoundButton()}).catch(err=>{if(err.name==='NotAllowedError'){audioUnlocked=false;updateSoundButton()}})}}catch{}}
+let orderAlerting=false;
 function triggerSmartSwitchAlert(durationSec=5){try{fetch(`http://localhost:8088/pulse?duration=${durationSec}`,{method:'POST',mode:'cors'}).catch(()=>{})}catch{}}
-function notifyNewOrder(){triggerSmartSwitchAlert(5);setTimeout(()=>{playChime()},5000)}
+function notifyNewOrder(){if(orderAlerting)return;orderAlerting=true;triggerSmartSwitchAlert(5);setTimeout(()=>{playChime();orderAlerting=false},5000)}
 let wakeLock=null,wakeLockEnabled=true;try{wakeLockEnabled=localStorage.getItem('moonrock-kitchen-wake')!=='false'}catch{}
 async function requestWakeLock(){if(!wakeLockEnabled||!('wakeLock' in navigator)||document.visibilityState!=='visible')return;try{if(!wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;updateWakeButton()})}}catch(e){}updateWakeButton()}
 function releaseWakeLock(){if(wakeLock){try{wakeLock.release()}catch{}wakeLock=null}updateWakeButton()}
