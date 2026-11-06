@@ -37,11 +37,11 @@ try{
  if(path==='/api/back/logout'&&req.method==='POST')return json({ok:true},200,{'Set-Cookie':`moonrock_host=; Path=/api/back; HttpOnly; ${url.protocol==='https:'?'Secure; ':''}SameSite=Strict; Max-Age=0`});
  if(path==='/api/back'&&req.method==='GET'){
   const current=await active(env);const rounds=(await env.DB.prepare('SELECT r.*,m.title AS menu_title,(SELECT COUNT(*) FROM orders o WHERE o.round_id=r.id) AS order_count FROM rounds r JOIN menus m ON m.id=r.menu_id ORDER BY r.created_at DESC,r.rowid DESC').all()).results;
-  const selected=url.searchParams.get('round')||current?.id;const selectedRound=rounds.find(r=>r.id===selected);if(selected&&!selectedRound)fail('Order round not found.',404);
+  const selected=url.searchParams.get('round')||current?.id||rounds[0]?.id;const selectedRound=rounds.find(r=>r.id===selected);if(selected&&!selectedRound)fail('Order round not found.',404);
   const menus=(await env.DB.prepare('SELECT * FROM menus ORDER BY created_at DESC,rowid DESC').all()).results.map(m=>({...m,sections:JSON.parse(m.sections)}));
   const orders=selected?(await env.DB.prepare('SELECT id,round_id,guest_name,items,note,fulfilled_items,completed,created_at FROM orders WHERE round_id=? ORDER BY created_at DESC,rowid DESC').bind(selected).all()).results.map(o=>({...o,items:JSON.parse(o.items),fulfilledItems:JSON.parse(o.fulfilled_items||'[]'),completed:!!o.completed})):[];
   const totals=new Map();for(const o of orders)for(const [index,item] of o.items.entries()){const key=item.itemId+':'+item.optionId;const prev=totals.get(key);totals.set(key,{...item,quantity:(prev?.quantity||0)+item.quantity,sent:(prev?.sent||0)+(o.fulfilledItems.includes(index)?item.quantity:0)})}
-  return json({activeRoundId:current?.id,selectedRound,rounds,menus,orders,totals:[...totals.values()]})
+  return json({activeRoundId:current?.id||null,selectedRound,rounds,menus,orders,totals:[...totals.values()]})
  }
  if(path==='/api/back/delete-order'&&req.method==='POST'){const b=await body(req);await env.DB.prepare('DELETE FROM orders WHERE id=?').bind(text(b.id)).run();return json({ok:true})}
  if(path==='/api/back/fulfillment'&&req.method==='POST'){
@@ -50,13 +50,14 @@ try{
   const completed=indices.length===itemCount?1:0;await env.DB.prepare('UPDATE orders SET fulfilled_items=?,completed=? WHERE id=?').bind(JSON.stringify(indices),completed,id).run();return json({ok:true})
  }
  if(path==='/api/back/reset'&&req.method==='POST'){const b=await body(req);if(!await env.DB.prepare('SELECT id FROM rounds WHERE id=?').bind(text(b.roundId)).first())fail('Round not found.',404);await env.DB.prepare('DELETE FROM orders WHERE round_id=?').bind(b.roundId).run();return json({ok:true})}
+ if(path==='/api/back/close'&&req.method==='POST'){const b=await body(req),current=await active(env);if(!current||current.id!==b.roundId)fail('No active gathering to end.',404);await env.DB.prepare("UPDATE rounds SET status='archived' WHERE id=? AND status='active'").bind(current.id).run();return json({ok:true})}
  if(path==='/api/back/menus'&&req.method==='POST'){const b=await body(req),id=crypto.randomUUID(),sections=validateMenu(b.sections);await env.DB.prepare('INSERT INTO menus(id,title,sections) VALUES(?,?,?)').bind(id,text(b.title,100),JSON.stringify(sections)).run();return json({id},201)}
  if(path==='/api/back/menu-update'&&req.method==='POST'){const b=await body(req),id=text(b.id),title=text(b.title,100),sections=validateMenu(b.sections),result=await env.DB.prepare('UPDATE menus SET title=?,sections=? WHERE id=?').bind(title,JSON.stringify(sections),id).run();if(!result.meta.changes)fail('Menu not found.',404);return json({id})}
  if(path==='/api/back/menu-archive'&&req.method==='POST'){const b=await body(req);if((await active(env))?.menu_id===b.id)fail('The current menu can be archived after starting a different menu.',409);await env.DB.prepare('UPDATE menus SET archived=? WHERE id=?').bind(b.archived?1:0,text(b.id)).run();return json({ok:true})}
  if(path==='/api/back/start'&&req.method==='POST'){
-  const b=await body(req),current=await active(env);if(current?.id!==b.expectedRoundId)fail('The active round changed. Refresh and try again.',409);
+  const b=await body(req),current=await active(env);if(current&&current.id!==b.expectedRoundId)fail('The active round changed. Refresh and try again.',409);
   const menu=await env.DB.prepare('SELECT id FROM menus WHERE id=? AND archived=0').bind(text(b.menuId)).first();if(!menu)fail('Choose an available menu.');
-  const id=crypto.randomUUID(),title=text(b.title,100);const results=await env.DB.batch([env.DB.prepare("UPDATE rounds SET status='archived' WHERE id=? AND status='active'").bind(current.id),env.DB.prepare("INSERT INTO rounds(id,menu_id,title,status) SELECT ?,?,?,'active' WHERE NOT EXISTS (SELECT 1 FROM rounds WHERE status='active')").bind(id,menu.id,title)]);if(!results[1].meta.changes)fail('Another round was just started. Refresh and try again.',409);return json({id},201)
+  const id=crypto.randomUUID(),title=text(b.title,100);const stmts=[env.DB.prepare("INSERT INTO rounds(id,menu_id,title,status) SELECT ?,?,?,'active' WHERE NOT EXISTS (SELECT 1 FROM rounds WHERE status='active')").bind(id,menu.id,title)];if(current)stmts.unshift(env.DB.prepare("UPDATE rounds SET status='archived' WHERE id=? AND status='active'").bind(current.id));const results=await env.DB.batch(stmts);const inserted=current?results[1]:results[0];if(!inserted.meta.changes)fail('Another round was just started. Refresh and try again.',409);return json({id},201)
  }
  fail('Not found.',404)
 }catch(error){console.error(error.status?error.message:'Request failed');return json({error:error.status?error.message:'Something went wrong. Please try again.'},error.status||500)}
