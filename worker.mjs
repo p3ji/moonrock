@@ -12,7 +12,7 @@ try{
  if(path==='/back'||path==='/back/'){const response=await env.ASSETS.fetch(req);const headers=new Headers(response.headers);headers.set('Cache-Control','no-store');headers.set('X-Robots-Tag','noindex, nofollow');return new Response(response.body,{status:response.status,headers})}
  if(!path.startsWith('/api/'))return env.ASSETS.fetch(req);
  if(!env.DB)return json({error:'Ordering is not available yet.'},503);
- if(req.method!=='GET'&&req.headers.get('Origin')!==url.origin)fail('Please submit from the café website.',403);
+ if(req.method!=='GET'&&!path.startsWith('/api/iot/')&&req.headers.get('Origin')!==url.origin)fail('Please submit from the café website.',403);
  if(path==='/api/menu'&&req.method==='GET'){const round=await active(env);if(!round)fail('Ordering is closed for now.',409);return json({roundId:round.id,roundTitle:round.title,menuId:round.menu_id,menuTitle:round.menu_title,sections:JSON.parse(round.sections)})}
  if(path==='/api/orders'&&req.method==='POST'){
   const b=await body(req),name=text(b.name,60),requestId=text(b.requestId,100);if(!/^[\w-]{16,100}$/.test(requestId))fail('Invalid order reference.');if(b.note!==undefined&&typeof b.note!=='string')fail('Check your order note.');const note=(b.note||'').trim();if(note.length>500)fail('Order notes must be 500 characters or fewer.');
