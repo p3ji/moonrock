@@ -27,8 +27,28 @@ try{
   return json({id},201)
  }
  if(path==='/api/iot/orders'&&req.method==='GET'){
+  try{await env.DB.prepare('CREATE TABLE IF NOT EXISTS iot_settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)').run()}catch{}
   const latest=await env.DB.prepare('SELECT id, created_at, guest_name FROM orders ORDER BY created_at DESC, rowid DESC LIMIT 1').first();
-  return json({ok:true,latest:latest||null})
+  const rows=(await env.DB.prepare('SELECT key, value FROM iot_settings').all()).results||[];
+  const settings={lights:true,r2d2:true,chime:true};
+  for(const r of rows){if(r.key in settings)settings[r.key]=r.value==='1'||r.value==='true'};
+  return json({ok:true,latest:latest||null,settings})
+ }
+ if(path==='/api/iot/settings'&&(req.method==='POST'||req.method==='GET')){
+  try{await env.DB.prepare('CREATE TABLE IF NOT EXISTS iot_settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)').run()}catch{}
+  if(req.method==='POST'){
+   const b=await body(req);
+   for(const k of ['lights','r2d2','chime']){
+    if(typeof b[k]==='boolean'||typeof b[k]==='string'){
+     const val=b[k]===true||b[k]==='true'||b[k]==='1'?'1':'0';
+     await env.DB.prepare('INSERT INTO iot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=?').bind(k,val,val).run();
+    }
+   }
+  }
+  const rows=(await env.DB.prepare('SELECT key, value FROM iot_settings').all()).results||[];
+  const settings={lights:true,r2d2:true,chime:true};
+  for(const r of rows){if(r.key in settings)settings[r.key]=r.value==='1'||r.value==='true'};
+  return json({ok:true,settings})
  }
  if(path==='/api/back/login'&&req.method==='POST'){
   if(env.HOST_OPEN==='true')return json({ok:true});if(!env.HOST_PASSCODE)fail('Host access has not been configured.',503);
@@ -45,7 +65,10 @@ try{
   const menus=(await env.DB.prepare('SELECT * FROM menus ORDER BY created_at DESC,rowid DESC').all()).results.map(m=>({...m,sections:JSON.parse(m.sections)}));
   const orders=selected?(await env.DB.prepare('SELECT id,round_id,guest_name,items,note,fulfilled_items,completed,created_at FROM orders WHERE round_id=? ORDER BY created_at DESC,rowid DESC').bind(selected).all()).results.map(o=>({...o,items:JSON.parse(o.items),fulfilledItems:JSON.parse(o.fulfilled_items||'[]'),completed:!!o.completed})):[];
   const totals=new Map();for(const o of orders)for(const [index,item] of o.items.entries()){const key=item.itemId+':'+item.optionId;const prev=totals.get(key);totals.set(key,{...item,quantity:(prev?.quantity||0)+item.quantity,sent:(prev?.sent||0)+(o.fulfilledItems.includes(index)?item.quantity:0)})}
-  return json({activeRoundId:current?.id||null,selectedRound,rounds,menus,orders,totals:[...totals.values()]})
+  const rows=(await env.DB.prepare('SELECT key, value FROM iot_settings').all().catch(()=>({results:[]})))?.results||[];
+  const settings={lights:true,r2d2:true,chime:true};
+  for(const r of rows){if(r.key in settings)settings[r.key]=r.value==='1'||r.value==='true'};
+  return json({activeRoundId:current?.id||null,selectedRound,rounds,menus,orders,totals:[...totals.values()],settings})
  }
  if(path==='/api/back/delete-order'&&req.method==='POST'){const b=await body(req);await env.DB.prepare('DELETE FROM orders WHERE id=?').bind(text(b.id)).run();return json({ok:true})}
  if(path==='/api/back/fulfillment'&&req.method==='POST'){

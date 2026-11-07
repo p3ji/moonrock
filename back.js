@@ -3,14 +3,50 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>
 let state,editing=[],editingMenuId=null,working=false,refreshVersion=0,refreshPending=0,editorOrigin=null,activationOrigin=null,activationMenu=null,activationRound=null,activationSucceeded=false,activationDestination='menus';
 const signatures=new WeakMap(),motion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth';
 const chime=new Audio('/assets/uh-oh.mp3');chime.preload='auto';
-let soundEnabled=true,audioUnlocked=false;try{soundEnabled=localStorage.getItem('moonrock-kitchen-sound')!=='false'}catch{}
-function updateSoundButton(){const b=$('#sound-toggle');if(!b)return;const needsGesture=soundEnabled&&!audioUnlocked&&navigator.userActivation&&!navigator.userActivation.hasBeenActive;b.textContent=!soundEnabled?'Chime muted':needsGesture?'Tap to enable chime':'Chime on';b.setAttribute('aria-pressed',soundEnabled&&!needsGesture?'true':'false');b.classList.toggle('needs-tap',!!needsGesture);b.title=!soundEnabled?'Chime is muted. Click to enable.':needsGesture?'Click anywhere to allow order alert chimes.':'Chime is active. Click to mute.'}
+const iotSettings={lights:true,r2d2:true,chime:true};
+try{
+  const l=localStorage.getItem('moonrock-kitchen-lights');if(l!==null)iotSettings.lights=l!=='false';
+  const r=localStorage.getItem('moonrock-kitchen-r2d2');if(r!==null)iotSettings.r2d2=r!=='false';
+  const s=localStorage.getItem('moonrock-kitchen-sound');if(s!==null)iotSettings.chime=s!=='false';
+}catch{}
+let soundEnabled=iotSettings.chime,audioUnlocked=false;
+
+function updateLightsButton(){
+  const b=$('#lights-toggle');if(!b)return;
+  b.textContent=iotSettings.lights?'Lights on':'Lights muted';
+  b.setAttribute('aria-pressed',iotSettings.lights?'true':'false');
+  b.title=iotSettings.lights?'Smart lights illuminate for 5s on order. Click to mute.':'Smart lights are muted. Click to enable.';
+}
+
+function updateR2D2Button(){
+  const b=$('#r2d2-toggle');if(!b)return;
+  b.textContent=iotSettings.r2d2?'R2-D2 on':'R2-D2 muted';
+  b.setAttribute('aria-pressed',iotSettings.r2d2?'true':'false');
+  b.title=iotSettings.r2d2?'R2-D2 sweeps dome & whistles on order. Click to mute.':'R2-D2 is muted. Click to enable.';
+}
+
+function updateSoundButton(){
+  const b=$('#sound-toggle');if(!b)return;
+  const needsGesture=iotSettings.chime&&!audioUnlocked&&navigator.userActivation&&!navigator.userActivation.hasBeenActive;
+  b.textContent=!iotSettings.chime?'Chime muted':needsGesture?'Tap to enable chime':'Chime on';
+  b.setAttribute('aria-pressed',iotSettings.chime&&!needsGesture?'true':'false');
+  b.classList.toggle('needs-tap',!!needsGesture);
+  b.title=!iotSettings.chime?'Chime is muted. Click to enable.':needsGesture?'Click anywhere to allow order alert chimes.':'Chime is active. Click to mute.';
+}
+
+function syncIotSettings(){
+  try{
+    fetch('/api/iot/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(iotSettings)}).catch(()=>{});
+    fetch('http://localhost:8088/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(iotSettings),mode:'cors'}).catch(()=>{});
+  }catch{}
+}
+
 function unlockAudio(){if(audioUnlocked)return;try{chime.load();const p=chime.play();if(p){p.then(()=>{chime.pause();chime.currentTime=0;audioUnlocked=true;updateSoundButton()}).catch(()=>{})}else{audioUnlocked=true;updateSoundButton()}}catch{}window.removeEventListener('pointerdown',unlockAudio);window.removeEventListener('keydown',unlockAudio)}
 window.addEventListener('pointerdown',unlockAudio,{passive:true});window.addEventListener('keydown',unlockAudio,{passive:true});
-function playChime(){if(!soundEnabled)return;try{chime.currentTime=0}catch{}try{const p=chime.play();if(p){p.then(()=>{audioUnlocked=true;updateSoundButton()}).catch(err=>{if(err.name==='NotAllowedError'){audioUnlocked=false;updateSoundButton()}})}}catch{}}
+function playChime(){if(!iotSettings.chime||!soundEnabled)return;try{chime.currentTime=0}catch{}try{const p=chime.play();if(p){p.then(()=>{audioUnlocked=true;updateSoundButton()}).catch(err=>{if(err.name==='NotAllowedError'){audioUnlocked=false;updateSoundButton()}})}}catch{}}
 let orderAlerting=false;
-function triggerSmartSwitchAlert(durationSec=5){try{fetch(`http://localhost:8088/pulse?duration=${durationSec}`,{method:'POST',mode:'cors'}).catch(()=>{})}catch{}}
-function notifyNewOrder(){if(orderAlerting)return;orderAlerting=true;triggerSmartSwitchAlert(5);setTimeout(()=>{playChime();orderAlerting=false},5000)}
+function triggerSmartSwitchAlert(durationSec=5){if(!iotSettings.lights&&!iotSettings.r2d2)return;try{fetch(`http://localhost:8088/pulse?duration=${durationSec}`,{method:'POST',mode:'cors'}).catch(()=>{})}catch{}}
+function notifyNewOrder(){if(orderAlerting)return;orderAlerting=true;triggerSmartSwitchAlert(5);setTimeout(()=>{if(iotSettings.chime&&soundEnabled)playChime();orderAlerting=false},5000)}
 let wakeLock=null,wakeLockEnabled=true;try{wakeLockEnabled=localStorage.getItem('moonrock-kitchen-wake')!=='false'}catch{}
 async function requestWakeLock(){if(!wakeLockEnabled||!('wakeLock' in navigator)||document.visibilityState!=='visible')return;try{if(!wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;updateWakeButton()})}}catch(e){}updateWakeButton()}
 function releaseWakeLock(){if(wakeLock){try{wakeLock.release()}catch{}wakeLock=null}updateWakeButton()}
@@ -23,7 +59,7 @@ const live=document.createElement('p');live.id='new-orders-status';live.classNam
 const editorError=document.createElement('p');editorError.className='editor-error';editorError.setAttribute('role','alert');$('#menu-form .editor-actions').before(editorError);
 const activation=document.createElement('dialog');activation.className='activation-dialog';activation.setAttribute('aria-labelledby','activation-title');activation.innerHTML=`<header><p class="eyebrow">MENU & GATHERING</p><h2 id="activation-title" tabindex="-1">Start a gathering</h2></header><form class="activation-form" novalidate><p class="activation-menu-name"></p><label for="gathering-name">Gathering name</label><input id="gathering-name" maxlength="100" required aria-describedby="activation-consequence activation-error"><p class="muted" id="activation-consequence">This menu becomes available to guests with an empty order board. Current orders will leave this board.</p><p class="activation-error" id="activation-error" role="alert"></p><div class="activation-actions"><button type="button" data-activation-cancel>Cancel</button><button type="submit" class="primary">Start gathering</button></div></form><section class="activation-result" hidden><p class="activation-success-message"></p><p class="muted">The kitchen is ready to receive new orders.</p><div class="activation-actions"><button type="button" data-activation-close>Close</button><button type="button" class="primary" data-view-orders>View orders</button></div></section>`;document.body.append(activation);
 const aq=s=>activation.querySelector(s);
-async function api(path,body){const response=await fetch('/api/back'+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});const data=await response.json();if(response.status===401){const expired=!!state;activation.close();$('#login').hidden=false;$('#dashboard').hidden=true;$('#logout').hidden=true;if(expired)message('Your kitchen session expired. Enter the passcode to continue.',true);releaseWakeLock();$('#sound-toggle').hidden=true;$('#wake-toggle').hidden=true;requestAnimationFrame(()=>focusNear($('#passcode')));}if(!response.ok)throw Error(data.error||'Request failed.');return data;}
+async function api(path,body){const response=await fetch('/api/back'+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});const data=await response.json();if(response.status===401){const expired=!!state;activation.close();$('#login').hidden=false;$('#dashboard').hidden=true;$('#logout').hidden=true;if(expired)message('Your kitchen session expired. Enter the passcode to continue.',true);releaseWakeLock();$('#sound-toggle').hidden=true;$('#lights-toggle').hidden=true;$('#r2d2-toggle').hidden=true;$('#wake-toggle').hidden=true;requestAnimationFrame(()=>focusNear($('#passcode')));}if(!response.ok)throw Error(data.error||'Request failed.');return data;}
 async function action(fn,{button=document.activeElement,pendingText,errorTarget=null}={}){if(working)return;working=true;++refreshVersion;const isButton=button?.tagName==='BUTTON',label=isButton?button.textContent:null;if(isButton){button.disabled=true;if(pendingText)button.textContent=pendingText}try{await fn()}catch(e){if(errorTarget)errorTarget.textContent=e.message;else message(e.message,true)}finally{working=false;if(isButton&&button.isConnected){button.disabled=false;if(label!==null)button.textContent=label;if(document.activeElement===document.body&&!button.closest('[hidden]')&&!$('#dashboard').hidden)focusNear(button)}}}
 function patchList(container,rows,keyOf,renderRow,emptyText,highlightNew=false){const existing=new Map([...container.children].filter(e=>e.dataset.key).map(e=>[e.dataset.key,e]));const focused=document.activeElement;let fallback=null;
  if(rows.length)container.querySelector('.empty-list')?.remove();let cursor=container.firstElementChild;
@@ -45,13 +81,16 @@ const menus=state.menus.map(menu=>({menu,current:menu.id===state.selectedRound?.
 if(anchor?.isConnected){const delta=anchor.getBoundingClientRect().top-anchorTop;if(Math.abs(delta)>1)scrollBy({top:delta,behavior:'instant'})}
 if(newCount){live.textContent=`${newCount} new ${newCount===1?'order':'orders'} received.`;notifyNewOrder()}else if(previous&&!sameRound){live.textContent=''}
 }
-async function refresh(silent=false){const version=++refreshVersion;refreshPending=version;try{const data=await api('');if(version!==refreshVersion)return;const previous=state,entering=$('#dashboard').hidden;state=data;$('#login').hidden=true;$('#dashboard').hidden=false;$('#logout').hidden=false;$('#sound-toggle').hidden=false;$('#wake-toggle').hidden=!('wakeLock' in navigator);updateSoundButton();updateWakeButton();if(wakeLockEnabled&&!wakeLock)requestWakeLock();render(previous);setText('#refresh-status','Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+' · checks every 5 seconds');if(entering){$('#dashboard').classList.add('host-view-enter');focusNear($('#round-title'))}}catch(e){if(version!==refreshVersion)return;if(!silent)message(e.message,true);else if(!$('#dashboard').hidden)setText('#refresh-status','Connection interrupted. Trying again…')}finally{if(refreshPending===version)refreshPending=0}}
+async function refresh(silent=false){const version=++refreshVersion;refreshPending=version;try{const data=await api('');if(version!==refreshVersion)return;const previous=state,entering=$('#dashboard').hidden;state=data;if(data.settings){if(localStorage.getItem('moonrock-kitchen-lights')===null&&data.settings.lights!==undefined)iotSettings.lights=!!data.settings.lights;if(localStorage.getItem('moonrock-kitchen-r2d2')===null&&data.settings.r2d2!==undefined)iotSettings.r2d2=!!data.settings.r2d2;if(localStorage.getItem('moonrock-kitchen-sound')===null&&data.settings.chime!==undefined)iotSettings.chime=!!data.settings.chime;soundEnabled=iotSettings.chime}
+$('#login').hidden=true;$('#dashboard').hidden=false;$('#logout').hidden=false;$('#sound-toggle').hidden=false;$('#lights-toggle').hidden=false;$('#r2d2-toggle').hidden=false;$('#wake-toggle').hidden=!('wakeLock' in navigator);updateLightsButton();updateR2D2Button();updateSoundButton();updateWakeButton();if(wakeLockEnabled&&!wakeLock)requestWakeLock();render(previous);setText('#refresh-status','Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+' · checks every 5 seconds');if(entering){$('#dashboard').classList.add('host-view-enter');focusNear($('#round-title'))}}catch(e){if(version!==refreshVersion)return;if(!silent)message(e.message,true);else if(!$('#dashboard').hidden)setText('#refresh-status','Connection interrupted. Trying again…')}finally{if(refreshPending===version)refreshPending=0}}
 function switchTab(name,focus=false){document.querySelectorAll('[data-tab]').forEach(b=>{const selected=b.dataset.tab===name;b.classList.toggle('selected',selected);b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1});for(const tab of ['orders','menus']){const panel=$('#'+tab+'-tab');panel.hidden=tab!==name;if(tab===name){panel.classList.remove('host-view-enter');void panel.offsetWidth;panel.classList.add('host-view-enter')}}if(focus)focusNear($(`[data-tab="${name}"]`));}
 $('.host-tabs').setAttribute('role','tablist');$('.host-tabs').setAttribute('aria-label','Kitchen sections');for(const b of document.querySelectorAll('[data-tab]')){b.id='tab-'+b.dataset.tab;b.setAttribute('role','tab');b.setAttribute('aria-controls',b.dataset.tab+'-tab');const panel=$('#'+b.dataset.tab+'-tab');panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',b.id)}switchTab('orders');
 $('.host-tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){switchTab(b.dataset.tab);message('')}};$('.host-tabs').onkeydown=e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const current=document.activeElement.dataset.tab;switchTab(e.key==='Home'?'orders':e.key==='End'?'menus':current==='orders'?'menus':'orders',true)};
 $('#login-form').onsubmit=async e=>{e.preventDefault();unlockAudio();requestWakeLock();const button=e.target.querySelector('button');button.disabled=true;button.textContent='Opening…';try{await api('/login',{passcode:$('#passcode').value});$('#passcode').value='';message('');await refresh()}catch(err){message(err.message,true);focusNear($('#passcode'))}finally{button.disabled=false;button.textContent='Open kitchen'}};
-$('#logout').onclick=()=>action(async()=>{releaseWakeLock();await api('/logout',{});$('#login').hidden=false;$('#dashboard').hidden=true;$('#logout').hidden=true;$('#sound-toggle').hidden=true;$('#wake-toggle').hidden=true;state=null;message('Kitchen locked.');focusNear($('#passcode'))},{pendingText:'Locking…'});
-$('#sound-toggle').onclick=()=>{unlockAudio();soundEnabled=!soundEnabled;try{localStorage.setItem('moonrock-kitchen-sound',String(soundEnabled))}catch{}updateSoundButton();if(soundEnabled){playChime()}};
+$('#logout').onclick=()=>action(async()=>{releaseWakeLock();await api('/logout',{});$('#login').hidden=false;$('#dashboard').hidden=true;$('#logout').hidden=true;$('#sound-toggle').hidden=true;$('#lights-toggle').hidden=true;$('#r2d2-toggle').hidden=true;$('#wake-toggle').hidden=true;state=null;message('Kitchen locked.');focusNear($('#passcode'))},{pendingText:'Locking…'});
+$('#lights-toggle').onclick=()=>{iotSettings.lights=!iotSettings.lights;try{localStorage.setItem('moonrock-kitchen-lights',String(iotSettings.lights))}catch{}updateLightsButton();syncIotSettings()};
+$('#r2d2-toggle').onclick=()=>{iotSettings.r2d2=!iotSettings.r2d2;try{localStorage.setItem('moonrock-kitchen-r2d2',String(iotSettings.r2d2))}catch{}updateR2D2Button();syncIotSettings()};
+$('#sound-toggle').onclick=()=>{unlockAudio();iotSettings.chime=!iotSettings.chime;soundEnabled=iotSettings.chime;try{localStorage.setItem('moonrock-kitchen-sound',String(iotSettings.chime))}catch{}updateSoundButton();syncIotSettings();if(iotSettings.chime){playChime()}};
 $('#wake-toggle').onclick=()=>{wakeLockEnabled=!wakeLockEnabled;try{localStorage.setItem('moonrock-kitchen-wake',String(wakeLockEnabled))}catch{}if(wakeLockEnabled)requestWakeLock();else releaseWakeLock();updateWakeButton()};
 $('#refresh').onclick=()=>action(()=>refresh(),{pendingText:'Refreshing…'});
 $('#close-round').onclick=()=>{if(!state.activeRoundId){message('There is no active gathering to end.');return;}if(confirm(`End this gathering (${state.selectedRound?.title})? This will close ordering for guests until you start a new gathering.`))action(async()=>{await api('/close',{roundId:state.activeRoundId});message('Gathering ended. Ordering is closed to guests.');await refresh();focusNear($('#round-title'))},{button:$('#close-round'),pendingText:'Closing…'})};
