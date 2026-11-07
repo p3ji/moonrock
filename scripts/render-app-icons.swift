@@ -84,7 +84,7 @@ func writePNG(_ image: CGImage, name: String) throws {
     guard CGImageDestinationFinalize(destination) else { fatalError("Could not finish \(name).") }
 }
 
-for edge in [512, 192, 180, 32] {
+for edge in [512, 192, 180, 167, 152, 120, 32] {
     guard let thumb = CGContext(data: nil, width: edge, height: edge, bitsPerComponent: 8,
                                bytesPerRow: edge * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!,
                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
