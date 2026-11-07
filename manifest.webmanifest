@@ -1,0 +1,24 @@
+{
+  "name": "Moonrock Café",
+  "short_name": "Moonrock",
+  "description": "A little home café for good company.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#151c35",
+  "theme_color": "#151c35",
+  "icons": [
+    {
+      "src": "/assets/app-icons/moonrock-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/app-icons/moonrock-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import {cpSync,mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url)),out=root+'.cloudflare-dist/';
 rmSync(out,{recursive:true,force:true});mkdirSync(out,{recursive:true});
-for(const name of ['style.css','storybook.css','blackhole.js','fox-scene.js','orders.js','orders.css','rabbit.js','cafe-music.js','back.html','back.js','back.css','assets/space','assets/fonts','assets/music','output/pdf','print'])cpSync(root+name,out+name,{recursive:true});
+for(const name of ['style.css','storybook.css','blackhole.js','fox-scene.js','orders.js','orders.css','rabbit.js','cafe-music.js','back.html','back.js','back.css','manifest.webmanifest','assets/app-icons','assets/space','assets/fonts','assets/music','output/pdf','print'])cpSync(root+name,out+name,{recursive:true});
 for(const name of ['blackhole.glb','blackhole-CREDITS.txt','fox-three-tails-v2.webp','fox-three-tails-v2-eyes-open.webp','storybook.webp','storybook-eyes-open.webp','emblem.svg','order-ping.mp3','uh-oh.mp3','qr.svg','qr.png'])cpSync(root+'assets/'+name,out+'assets/'+name);
 mkdirSync(out+'assets/fox-natural',{recursive:true});
 for(const name of ['natural-three-tails.webp','eyes-half.webp','eyes-open.webp'])cpSync(root+'assets/fox-natural/'+name,out+'assets/fox-natural/'+name);
