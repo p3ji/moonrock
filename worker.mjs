@@ -28,7 +28,7 @@ try{
  }
  if(path==='/api/iot/orders'&&req.method==='GET'){
   try{await env.DB.prepare('CREATE TABLE IF NOT EXISTS iot_settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)').run()}catch{}
-  const latest=await env.DB.prepare('SELECT id, created_at, guest_name FROM orders ORDER BY created_at DESC, rowid DESC LIMIT 1').first();
+  const latest=await env.DB.prepare('SELECT id, created_at, guest_name, items, note FROM orders ORDER BY created_at DESC, rowid DESC LIMIT 1').first();
   const rows=(await env.DB.prepare('SELECT key, value FROM iot_settings').all()).results||[];
   const settings={lights:true,r2d2:true,chime:true};
   for(const r of rows){if(r.key in settings)settings[r.key]=r.value==='1'||r.value==='true'};
