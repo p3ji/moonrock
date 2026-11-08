@@ -61,7 +61,7 @@ try{
  if(path==='/api/back/logout'&&req.method==='POST')return json({ok:true},200,{'Set-Cookie':`moonrock_host=; Path=/api/back; HttpOnly; ${url.protocol==='https:'?'Secure; ':''}SameSite=Strict; Max-Age=0`});
  if(path==='/api/back'&&req.method==='GET'){
   const current=await active(env);const rounds=(await env.DB.prepare('SELECT r.*,m.title AS menu_title,(SELECT COUNT(*) FROM orders o WHERE o.round_id=r.id) AS order_count FROM rounds r JOIN menus m ON m.id=r.menu_id ORDER BY r.created_at DESC,r.rowid DESC').all()).results;
-  const selected=url.searchParams.get('round')||current?.id||rounds[0]?.id;const selectedRound=rounds.find(r=>r.id===selected);if(selected&&!selectedRound)fail('Order round not found.',404);
+  const selected=url.searchParams.get('round')||current?.id;const selectedRound=rounds.find(r=>r.id===selected);if(selected&&!selectedRound)fail('Order round not found.',404);
   const menus=(await env.DB.prepare('SELECT * FROM menus ORDER BY created_at DESC,rowid DESC').all()).results.map(m=>({...m,sections:JSON.parse(m.sections)}));
   const orders=selected?(await env.DB.prepare('SELECT id,round_id,guest_name,items,note,fulfilled_items,completed,created_at FROM orders WHERE round_id=? ORDER BY created_at DESC,rowid DESC').bind(selected).all()).results.map(o=>({...o,items:JSON.parse(o.items),fulfilledItems:JSON.parse(o.fulfilled_items||'[]'),completed:!!o.completed})):[];
   const totals=new Map();for(const o of orders)for(const [index,item] of o.items.entries()){const key=item.itemId+':'+item.optionId;const prev=totals.get(key);totals.set(key,{...item,quantity:(prev?.quantity||0)+item.quantity,sent:(prev?.sent||0)+(o.fulfilledItems.includes(index)?item.quantity:0)})}
@@ -70,13 +70,13 @@ try{
   for(const r of rows){if(r.key in settings)settings[r.key]=r.value==='1'||r.value==='true'};
   return json({activeRoundId:current?.id||null,selectedRound,rounds,menus,orders,totals:[...totals.values()],settings})
  }
- if(path==='/api/back/delete-order'&&req.method==='POST'){const b=await body(req);await env.DB.prepare('DELETE FROM orders WHERE id=?').bind(text(b.id)).run();return json({ok:true})}
+ if(path==='/api/back/delete-order'&&req.method==='POST'){const b=await body(req);if(!await env.DB.prepare("SELECT o.id FROM orders o JOIN rounds r ON r.id=o.round_id WHERE o.id=? AND r.status='active'").bind(text(b.id)).first())fail('Completed event orders are read-only.',409);await env.DB.prepare('DELETE FROM orders WHERE id=?').bind(text(b.id)).run();return json({ok:true})}
  if(path==='/api/back/fulfillment'&&req.method==='POST'){
-  const b=await body(req),id=text(b.id),order=await env.DB.prepare('SELECT items FROM orders WHERE id=?').bind(id).first();if(!order)fail('Order not found.',404);
+  const b=await body(req),id=text(b.id),order=await env.DB.prepare("SELECT o.items FROM orders o JOIN rounds r ON r.id=o.round_id WHERE o.id=? AND r.status='active'").bind(id).first();if(!order)fail('Order not found.',404);
   if(!Array.isArray(b.fulfilledItems))fail('Check the selected order items.');const itemCount=JSON.parse(order.items).length,indices=[...new Set(b.fulfilledItems)];if(indices.some(index=>!Number.isInteger(index)||index<0||index>=itemCount))fail('Check the selected order items.');
   const completed=indices.length===itemCount?1:0;await env.DB.prepare('UPDATE orders SET fulfilled_items=?,completed=? WHERE id=?').bind(JSON.stringify(indices),completed,id).run();return json({ok:true})
  }
- if(path==='/api/back/reset'&&req.method==='POST'){const b=await body(req);if(!await env.DB.prepare('SELECT id FROM rounds WHERE id=?').bind(text(b.roundId)).first())fail('Round not found.',404);await env.DB.prepare('DELETE FROM orders WHERE round_id=?').bind(b.roundId).run();return json({ok:true})}
+ if(path==='/api/back/reset'&&req.method==='POST'){const b=await body(req);if(!await env.DB.prepare("SELECT id FROM rounds WHERE id=? AND status='active'").bind(text(b.roundId)).first())fail('Round not found.',404);await env.DB.prepare('DELETE FROM orders WHERE round_id=?').bind(b.roundId).run();return json({ok:true})}
  if(path==='/api/back/close'&&req.method==='POST'){const b=await body(req),current=await active(env);if(!current||current.id!==b.roundId)fail('No active gathering to end.',404);await env.DB.prepare("UPDATE rounds SET status='archived' WHERE id=? AND status='active'").bind(current.id).run();return json({ok:true})}
  if(path==='/api/back/menus'&&req.method==='POST'){const b=await body(req),id=crypto.randomUUID(),sections=validateMenu(b.sections);await env.DB.prepare('INSERT INTO menus(id,title,sections) VALUES(?,?,?)').bind(id,text(b.title,100),JSON.stringify(sections)).run();return json({id},201)}
  if(path==='/api/back/menu-update'&&req.method==='POST'){const b=await body(req),id=text(b.id),title=text(b.title,100),sections=validateMenu(b.sections),result=await env.DB.prepare('UPDATE menus SET title=?,sections=? WHERE id=?').bind(title,JSON.stringify(sections),id).run();if(!result.meta.changes)fail('Menu not found.',404);return json({id})}
