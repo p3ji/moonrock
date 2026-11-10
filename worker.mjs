@@ -12,7 +12,7 @@ try{
  if(/^\/i\/[a-f0-9]{24}$/.test(path)&&req.method==='GET'){
   const invite=await env.DB.prepare('SELECT details FROM short_invites WHERE id=?').bind(path.slice(3)).first().catch(()=>null);
   if(!invite)return new Response('This invitation could not be found.',{status:404,headers:{'Cache-Control':'no-store'}});
-  return new Response(null,{status:302,headers:{Location:url.origin+'/#home?invite='+encodeURIComponent(invite.details),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
+  return new Response(null,{status:302,headers:{Location:url.origin+'/#?invite='+encodeURIComponent(invite.details),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
  }
  if(path==='/back'||path==='/back/'){const response=await env.ASSETS.fetch(req);const headers=new Headers(response.headers);headers.set('Cache-Control','no-store');headers.set('X-Robots-Tag','noindex, nofollow');return new Response(response.body,{status:response.status,headers})}
  if(!path.startsWith('/api/'))return env.ASSETS.fetch(req);

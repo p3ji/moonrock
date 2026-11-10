@@ -32,11 +32,14 @@
       document.body.style.overflow = preview && document.querySelector('#dashboard')?.hidden ? '' : previousOverflow;
       if (preview) previousFocus?.focus({ preventScroll: true });
       else {
-        history.replaceState(null, '', location.pathname + location.search + '#home');
-        document.querySelector('#home')?.scrollIntoView({ behavior: 'instant' });
+        history.replaceState(null, '', location.pathname + location.search);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       }
     });
-    if (!preview) history.replaceState(null, '', location.pathname + location.search + '#home');
+    if (!preview) {
+      history.replaceState(null, '', location.pathname + location.search);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
     dialog.showModal();
     dialog.querySelector('h2').focus({ preventScroll: true });
     if (preview) {

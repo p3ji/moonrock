@@ -92,7 +92,7 @@
 
   function updateInvitation() {
     const details = { title: heading.value.trim() || 'You’re invited to Moonrock', message: message.value.trim(), when: when.value ? new Date(when.value).toISOString() : '', zone };
-    inviteUrl = 'https://cafe.peji.ca/#home?invite=' + encodeURIComponent(JSON.stringify(details));
+    inviteUrl = 'https://cafe.peji.ca/#?invite=' + encodeURIComponent(JSON.stringify(details));
     link.value = inviteUrl;
     previewUrl = inviteUrl;
     clearFeedback();

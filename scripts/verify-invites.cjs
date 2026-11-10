@@ -101,7 +101,7 @@ async function unlockKitchen(page) {
       assert.equal(await page.evaluate(() => document.activeElement.id), 'invite-title');
       assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden');
       let inviteUrl = await dialog.locator('#invite-link').inputValue();
-      assert(inviteUrl.startsWith('https://cafe.peji.ca/#home?invite='));
+      assert(inviteUrl.startsWith('https://cafe.peji.ca/#?invite='));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await dialog.screenshot({ path: `/tmp/moonrock-invites-${width}.png` });
 
@@ -217,7 +217,7 @@ async function unlockKitchen(page) {
     assert.equal(await page.locator('script[src*="invites.js"]').count(), 0);
     console.log('PASS public home page has no sharing controls; unsupported native sharing is hidden');
     const details = { title: 'A cozy game night', message: '<img src=x onerror=alert(1)> Welcome!\nBring a game.', when: '2026-12-12T23:30:00.000Z', zone: 'America/Toronto' };
-    await page.goto(base + '/#home?invite=' + encodeURIComponent(JSON.stringify(details)));
+    await page.goto(base + '/#?invite=' + encodeURIComponent(JSON.stringify(details)));
     const welcome = page.getByRole('dialog', { name: details.title });
     await welcome.waitFor({ state: 'visible' });
     assert.equal(await welcome.locator('.welcome-note').innerText(), details.message);
@@ -225,9 +225,10 @@ async function unlockKitchen(page) {
     assert.match(await welcome.locator('.welcome-date').innerText(), /December/);
     await welcome.getByRole('button', { name: 'Come on in' }).click();
     await welcome.waitFor({ state: 'detached' });
+    await page.waitForFunction(() => scrollY === 0 && location.hash === '');
     await page.reload();
     assert.equal(await page.locator('.guest-welcome').count(), 0);
-    await page.goto(base + '/#home?invite=broken');
+    await page.goto(base + '/#?invite=broken');
     assert.equal(await page.locator('.guest-welcome').count(), 0);
     console.log('PASS personalized guest welcome, safe text, gathering time, dismissal, reload, and malformed link');
   } finally {
