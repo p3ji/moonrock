@@ -9,6 +9,11 @@ function validateMenu(value){if(!Array.isArray(value)||!value.length||value.leng
 async function active(env){return env.DB.prepare("SELECT r.id,r.title,r.menu_id,m.sections,m.title AS menu_title FROM rounds r JOIN menus m ON m.id=r.menu_id WHERE r.status='active'").first()}
 export default {async fetch(req,env){const url=new URL(req.url),path=url.pathname;
 try{
+ if(/^\/i\/[a-f0-9]{24}$/.test(path)&&req.method==='GET'){
+  const invite=await env.DB.prepare('SELECT details FROM short_invites WHERE id=?').bind(path.slice(3)).first().catch(()=>null);
+  if(!invite)return new Response('This invitation could not be found.',{status:404,headers:{'Cache-Control':'no-store'}});
+  return new Response(null,{status:302,headers:{Location:url.origin+'/#home?invite='+encodeURIComponent(invite.details),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
+ }
  if(path==='/back'||path==='/back/'){const response=await env.ASSETS.fetch(req);const headers=new Headers(response.headers);headers.set('Cache-Control','no-store');headers.set('X-Robots-Tag','noindex, nofollow');return new Response(response.body,{status:response.status,headers})}
  if(!path.startsWith('/api/'))return env.ASSETS.fetch(req);
  if(!env.DB)return json({error:'Ordering is not available yet.'},503);
@@ -58,6 +63,15 @@ try{
   await env.DB.prepare('DELETE FROM login_attempts WHERE key=?').bind(key).run();const expiry=String(Date.now()+86400000);return json({ok:true},200,{'Set-Cookie':`moonrock_host=${expiry}.${await signature(expiry,env.HOST_PASSCODE)}; Path=/api/back; HttpOnly; ${url.protocol==='https:'?'Secure; ':''}SameSite=Strict; Max-Age=86400`})
  }
  if(!path.startsWith('/api/back'))fail('Not found.',404);if(!await host(req,env))fail('Enter the host passcode.',401);
+ if(path==='/api/back/short-invite'&&req.method==='POST'){
+  const b=await body(req),details={title:text(b.title,100),message:typeof b.message==='string'?b.message.slice(0,500):'',when:typeof b.when==='string'?b.when.slice(0,40):'',zone:typeof b.zone==='string'?b.zone.slice(0,100):'America/Toronto'};
+  if(details.when&&!Number.isFinite(Date.parse(details.when)))fail('Check the gathering date.');
+  try{new Intl.DateTimeFormat('en',{timeZone:details.zone})}catch{fail('Check the time zone.')}
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS short_invites(id TEXT PRIMARY KEY,details TEXT NOT NULL)').run();
+  const id=crypto.randomUUID().replaceAll('-','').slice(0,24);
+  await env.DB.prepare('INSERT INTO short_invites(id,details) VALUES(?,?)').bind(id,JSON.stringify(details)).run();
+  return json({url:url.origin+'/i/'+id},201);
+ }
  if(path==='/api/back/logout'&&req.method==='POST')return json({ok:true},200,{'Set-Cookie':`moonrock_host=; Path=/api/back; HttpOnly; ${url.protocol==='https:'?'Secure; ':''}SameSite=Strict; Max-Age=0`});
  if(path==='/api/back'&&req.method==='GET'){
   const current=await active(env);const rounds=(await env.DB.prepare('SELECT r.*,m.title AS menu_title,(SELECT COUNT(*) FROM orders o WHERE o.round_id=r.id) AS order_count FROM rounds r JOIN menus m ON m.id=r.menu_id ORDER BY r.created_at DESC,r.rowid DESC').all()).results;

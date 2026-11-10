@@ -5,6 +5,7 @@
 
   // Always share the public café, including from a local or installed preview.
   let inviteUrl = 'https://cafe.peji.ca/#home';
+  let previewUrl = inviteUrl;
   const dialog = document.createElement('dialog');
   dialog.className = 'invite-dialog';
   dialog.setAttribute('aria-labelledby', 'invite-title');
@@ -38,6 +39,7 @@
         <label class="invite-link-label" for="invite-link">Café link</label>
         <input id="invite-link" type="url" readonly value="${inviteUrl}">
         <div class="invite-link-actions">
+          <button class="invite-shorten" type="button">Create short link</button>
           <button class="invite-copy" type="button">Copy link</button>
           <button class="invite-share" type="button" hidden>Share…</button>
         </div>
@@ -59,6 +61,24 @@
   const copy = dialog.querySelector('.invite-copy');
   const share = dialog.querySelector('.invite-share');
   let returnFocus = null, previousOverflow = '', revision = 0;
+  const shorten = dialog.querySelector('.invite-shorten');
+  shorten.addEventListener('click', async () => {
+    const snapshot = inviteUrl;
+    shorten.disabled = true;
+    status.textContent = 'Creating short link…';
+    try {
+      const details = JSON.parse(new URLSearchParams(snapshot.split('?')[1] || '').get('invite'));
+      if (!details) { status.textContent = 'This invitation already has a short link.'; return; }
+      const response = await fetch('/api/back/short-invite', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details) });
+      const data = await response.json();
+      if (!response.ok) throw Error(data.error || 'Could not create a short link.');
+      if (inviteUrl !== snapshot || dashboard.hidden || !dialog.open) return;
+      inviteUrl = data.url;
+      link.value = inviteUrl;
+      status.textContent = 'Short link ready. Copy it, share it, or include it in your email invitation.';
+    } catch (err) { status.textContent = err.message || 'Could not create a short link. Try again.'; }
+    finally { shorten.disabled = false; }
+  });
 
   function invitationText(includeLink = true) {
     return [
@@ -74,11 +94,11 @@
     const details = { title: heading.value.trim() || 'You’re invited to Moonrock', message: message.value.trim(), when: when.value ? new Date(when.value).toISOString() : '', zone };
     inviteUrl = 'https://cafe.peji.ca/#home?invite=' + encodeURIComponent(JSON.stringify(details));
     link.value = inviteUrl;
+    previewUrl = inviteUrl;
     clearFeedback();
   }
   dialog.querySelector('.invite-preview').addEventListener('click', () => {
-    updateInvitation();
-    window.dispatchEvent(new CustomEvent('moonrock-preview-invite', { detail: inviteUrl }));
+    window.dispatchEvent(new CustomEvent('moonrock-preview-invite', { detail: previewUrl }));
   });
   function clearFeedback() {
     revision++;

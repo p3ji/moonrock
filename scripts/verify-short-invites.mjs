@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import worker from '../worker.mjs';
+const sqlite=new DatabaseSync(':memory:');
+const DB={prepare(sql){return {args:[],bind(...args){this.args=args;return this},async first(){return sqlite.prepare(sql).get(...this.args)},async run(){return sqlite.prepare(sql).run(...this.args)}}}};
+const details={title:'Game night',message:'A short invitation — welcome!',when:'2026-12-12T23:30:00.000Z',zone:'America/Toronto'};
+const request=()=>new Request('https://cafe.example/api/back/short-invite',{method:'POST',headers:{Origin:'https://cafe.example','Content-Type':'application/json'},body:JSON.stringify(details)});
+assert.equal((await worker.fetch(request(),{DB})).status,401);
+const response=await worker.fetch(request(),{DB,HOST_OPEN:'true'});
+assert.equal(response.status,201);
+const {url}=await response.json();
+assert.match(url,/^https:\/\/cafe.example\/i\/[a-f0-9]{24}$/);
+const redirect=await worker.fetch(new Request(url),{DB});
+assert.equal(redirect.status,302);
+const restored=JSON.parse(new URLSearchParams(new URL(redirect.headers.get('Location')).hash.split('?')[1]).get('invite'));
+assert.deepEqual(restored,details);
+assert.equal((await worker.fetch(new Request('https://cafe.example/i/'+'0'.repeat(24)),{DB})).status,404);
+console.log('PASS host-only creation, short URL, anonymous guest redirect, preserved personalized details, and missing invitation');

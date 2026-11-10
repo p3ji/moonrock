@@ -28,6 +28,7 @@ async function mockKitchen(page, mutations) {
       session.deleted = (session.deleted || 0) + 1;
       return route.fulfill({ json: { ok: true } });
     }
+    if (pathname === '/api/back/short-invite') return route.fulfill({status:201,json:{url:'https://cafe.peji.ca/i/'+'a'.repeat(24)}});
     if (pathname === '/api/back/logout') {
       session.loggedIn = false;
       return route.fulfill({ json: { ok: true } });
@@ -56,7 +57,7 @@ async function unlockKitchen(page) {
       const context = await browser.newContext({ viewport: { width, height: 850 } });
       const page = await context.newPage();
       const errors = [], mutations = [];
-      page.on('pageerror', error => errors.push(error.message));
+      page.on('pageerror', error => { errors.push(error.message); console.error('Browser error:', error.message); });
       const session = await mockKitchen(page, mutations);
       await page.addInitScript(() => {
         window.testMailto = [];
@@ -161,6 +162,9 @@ async function unlockKitchen(page) {
       await dialog.getByRole('button', { name: 'Share…', exact: true }).click();
       assert.match(await dialog.getByRole('status').innerText(), /Copy the café link instead/);
 
+      await dialog.getByRole('button', { name: 'Create short link' }).click();
+      await page.waitForFunction(() => document.querySelector('#invite-link').value.includes('/i/'));
+      assert.equal(await dialog.locator('#invite-link').inputValue(), 'https://cafe.peji.ca/i/'+'a'.repeat(24));
       // Native modal blocks the underlying page and restores the opener on Escape.
       await dialog.getByRole('button', { name: 'Share…', exact: true }).focus();
       await page.keyboard.press('Shift+Tab');

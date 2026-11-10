@@ -98,3 +98,5 @@ preview URL.
 Personalized invitations support a title, message, gathering date/time, and guest preview. Generated links display a welcome on the public home page; the invitation details travel in the link, so anyone receiving it can read them. Date/time includes the host’s time zone. Existing generic café links continue to work.
 
 History includes **Delete event** for completed events. Confirmation permanently removes that event and its saved orders; active events and saved menu templates remain intact. `node scripts/verify-event-deletion.mjs` verifies the API against an isolated in-memory database.
+
+Choose **Create short link** in the invite editor, then copy/share it or open an email draft. The short URL stores the current invitation on the café server; editing the invitation requires creating a new link. Existing short links keep their original welcome details.
