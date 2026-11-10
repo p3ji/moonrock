@@ -86,7 +86,7 @@ the addresses or send email itself.
 when supported and includes the personal note. Anyone with the link can view the café;
 it does not create an account or grant kitchen access.
 
-The invitation UI is in `invites.js` and `invites.css`, loaded only by `back.html`.
+The invite editor in `invites.js` loads only in `back.html`. The guest welcome uses `invite-welcome.js` and shares `invites.css`.
 The dialog closes and clears its fields when the kitchen is locked or its session
 expires. Guests do not see invitation controls on the public home page.
 `scripts/prepare-deploy.mjs` packages both files. After preparing the site, serve
@@ -94,3 +94,7 @@ expires. Guests do not see invitation controls on the public home page.
 `node scripts/verify-invites.cjs` for mocked desktop, tablet, and mobile browser checks.
 The verification never sends email or writes orders. Set `CAFE_URL` to use another
 preview URL.
+
+Personalized invitations support a title, message, gathering date/time, and guest preview. Generated links display a welcome on the public home page; the invitation details travel in the link, so anyone receiving it can read them. Date/time includes the host’s time zone. Existing generic café links continue to work.
+
+History includes **Delete event** for completed events. Confirmation permanently removes that event and its saved orders; active events and saved menu templates remain intact. `node scripts/verify-event-deletion.mjs` verifies the API against an isolated in-memory database.

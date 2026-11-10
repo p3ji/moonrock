@@ -6,12 +6,12 @@ const { chromium } = require('/Users/pushp/.cache/codex-runtimes/codex-primary-r
 const root = path.resolve(__dirname, '..');
 const base = process.env.CAFE_URL || 'http://127.0.0.1:4193';
 const seed = JSON.parse(fs.readFileSync(path.join(root, 'src/catalog.json'), 'utf8'));
-const inviteUrl = 'https://cafe.peji.ca/#home';
+
 
 async function mockKitchen(page, mutations) {
   const session = { loggedIn: false };
   const round = { id: 'invite-test', menu_id: seed.id, title: 'Preview gathering', status: 'active', created_at: '2026-11-10T18:00:00Z', menu_title: seed.title, order_count: 0 };
-  const state = { activeRoundId: round.id, selectedRound: round, rounds: [round], menus: [{ ...seed, archived: 0 }], orders: [], totals: [], settings: { lights: false, r2d2: false, chime: false } };
+  const state = { activeRoundId: round.id, selectedRound: round, rounds: [round, { ...round, id: 'mistake', title: 'Mistaken event', status: 'archived' }], menus: [{ ...seed, archived: 0 }], orders: [], totals: [], settings: { lights: false, r2d2: false, chime: false } };
   // A static preview lacks the Worker's /back route; serve the packaged host page.
   if (['localhost', '127.0.0.1'].includes(new URL(base).hostname)) {
     await page.route(url => url.pathname === '/back', route => route.fulfill({ contentType: 'text/html', body: fs.readFileSync(path.join(root, '.cloudflare-dist/back.html'), 'utf8') }));
@@ -21,6 +21,11 @@ async function mockKitchen(page, mutations) {
     const request = route.request(), pathname = new URL(request.url()).pathname;
     if (pathname === '/api/back/login') {
       session.loggedIn = true;
+      return route.fulfill({ json: { ok: true } });
+    }
+    if (pathname === '/api/back/delete-event') {
+      state.rounds = state.rounds.filter(round => round.id !== request.postDataJSON().id);
+      session.deleted = (session.deleted || 0) + 1;
       return route.fulfill({ json: { ok: true } });
     }
     if (pathname === '/api/back/logout') {
@@ -78,13 +83,24 @@ async function unlockKitchen(page) {
       await page.locator('[data-open-invites]').evaluate(button => button.click());
       assert.equal(await page.locator('.invite-dialog').evaluate(element => element.open), false);
       await unlockKitchen(page);
+      await page.getByRole('tab', { name: 'History', exact: true }).click();
+      page.once('dialog', confirmation => confirmation.dismiss());
+      await page.getByRole('button', { name: 'Delete event', exact: true }).click();
+      assert.equal(session.deleted || 0, 0);
+      page.once('dialog', confirmation => confirmation.accept());
+      await page.getByRole('button', { name: 'Delete event', exact: true }).click();
+      await page.getByRole('button', { name: 'Delete event', exact: true }).waitFor({ state: 'detached' });
+      assert.equal(session.deleted, 1);
+      await page.getByRole('tab', { name: 'Orders', exact: true }).click();
+      assert.equal(await page.locator('#round-title').innerText(), 'Preview gathering');
       const opener = page.getByRole('button', { name: 'Invite friends', exact: true });
       await opener.click();
       const dialog = page.getByRole('dialog', { name: 'Pull up another chair.' });
       await dialog.waitFor({ state: 'visible' });
       assert.equal(await page.evaluate(() => document.activeElement.id), 'invite-title');
       assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden');
-      assert.equal(await dialog.locator('#invite-link').inputValue(), inviteUrl);
+      let inviteUrl = await dialog.locator('#invite-link').inputValue();
+      assert(inviteUrl.startsWith('https://cafe.peji.ca/#home?invite='));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await dialog.screenshot({ path: `/tmp/moonrock-invites-${width}.png` });
 
@@ -103,12 +119,21 @@ async function unlockKitchen(page) {
       const note = 'Saturday at 6? Tea & games! <b>See you soon</b>\nBring a friend.';
       await dialog.getByLabel('Invite by email').fill('FIRST@example.com; second@example.com\nfirst@example.com');
       await dialog.getByLabel('A note from you').fill(note);
+      await dialog.getByLabel('Invitation title').fill('A cozy game night');
+      await dialog.getByLabel('Gathering date and time').fill('2026-12-12T18:30');
+      inviteUrl = await dialog.locator('#invite-link').inputValue();
+      await dialog.getByRole('button', { name: 'Preview guest welcome' }).click();
+      const welcome = page.getByRole('dialog', { name: 'A cozy game night' });
+      await welcome.waitFor({ state: 'visible' });
+      assert.equal(await welcome.locator('.welcome-note').innerText(), note);
+      assert.match(await welcome.locator('.welcome-date').innerText(), /December/);
+      await welcome.getByRole('button', { name: 'Back to invitation' }).click();
       await dialog.getByRole('button', { name: 'Open email app' }).click();
       const draft = new URL(await page.evaluate(() => window.testMailto[0]));
       assert.equal(draft.protocol, 'mailto:');
       assert.equal(draft.pathname, '');
       assert.equal(draft.searchParams.get('bcc'), 'first@example.com,second@example.com');
-      assert.equal(draft.searchParams.get('subject'), 'You’re invited to Moonrock');
+      assert.equal(draft.searchParams.get('subject'), 'A cozy game night');
       assert(draft.searchParams.get('body').includes(note));
       assert(draft.searchParams.get('body').includes(inviteUrl));
       assert(!draft.searchParams.get('body').includes('first@example.com'));
@@ -185,8 +210,22 @@ async function unlockKitchen(page) {
     await page.goto(base + '/#home');
     assert.equal(await page.locator('[data-open-invites]').count(), 0);
     assert.equal(await page.locator('.invite-dialog').count(), 0);
-    assert.equal(await page.locator('script[src*="invites.js"], link[href*="invites.css"]').count(), 0);
-    console.log('PASS public home page has no invitation controls or assets; unsupported native sharing is hidden in the back office');
+    assert.equal(await page.locator('script[src*="invites.js"]').count(), 0);
+    console.log('PASS public home page has no sharing controls; unsupported native sharing is hidden');
+    const details = { title: 'A cozy game night', message: '<img src=x onerror=alert(1)> Welcome!\nBring a game.', when: '2026-12-12T23:30:00.000Z', zone: 'America/Toronto' };
+    await page.goto(base + '/#home?invite=' + encodeURIComponent(JSON.stringify(details)));
+    const welcome = page.getByRole('dialog', { name: details.title });
+    await welcome.waitFor({ state: 'visible' });
+    assert.equal(await welcome.locator('.welcome-note').innerText(), details.message);
+    assert.equal(await welcome.locator('img').count(), 0);
+    assert.match(await welcome.locator('.welcome-date').innerText(), /December/);
+    await welcome.getByRole('button', { name: 'Come on in' }).click();
+    await welcome.waitFor({ state: 'detached' });
+    await page.reload();
+    assert.equal(await page.locator('.guest-welcome').count(), 0);
+    await page.goto(base + '/#home?invite=broken');
+    assert.equal(await page.locator('.guest-welcome').count(), 0);
+    console.log('PASS personalized guest welcome, safe text, gathering time, dismissal, reload, and malformed link');
   } finally {
     await browser.close();
   }

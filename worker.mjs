@@ -70,6 +70,15 @@ try{
   for(const r of rows){if(r.key in settings)settings[r.key]=r.value==='1'||r.value==='true'};
   return json({activeRoundId:current?.id||null,selectedRound,rounds,menus,orders,totals:[...totals.values()],settings})
  }
+ if(path==='/api/back/delete-event'&&req.method==='POST'){
+  const b=await body(req),id=text(b.id);
+  if(!await env.DB.prepare("SELECT id FROM rounds WHERE id=? AND status='archived'").bind(id).first())fail('Only past events can be deleted.',409);
+  await env.DB.batch([
+   env.DB.prepare("DELETE FROM orders WHERE round_id IN (SELECT id FROM rounds WHERE id=? AND status='archived')").bind(id),
+   env.DB.prepare("DELETE FROM rounds WHERE id=? AND status='archived'").bind(id)
+  ]);
+  return json({ok:true})
+ }
  if(path==='/api/back/delete-order'&&req.method==='POST'){const b=await body(req);if(!await env.DB.prepare("SELECT o.id FROM orders o JOIN rounds r ON r.id=o.round_id WHERE o.id=? AND r.status='active'").bind(text(b.id)).first())fail('Completed event orders are read-only.',409);await env.DB.prepare('DELETE FROM orders WHERE id=?').bind(text(b.id)).run();return json({ok:true})}
  if(path==='/api/back/fulfillment'&&req.method==='POST'){
   const b=await body(req),id=text(b.id),order=await env.DB.prepare("SELECT o.items FROM orders o JOIN rounds r ON r.id=o.round_id WHERE o.id=? AND r.status='active'").bind(id).first();if(!order)fail('Order not found.',404);

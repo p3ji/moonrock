@@ -33,3 +33,4 @@
 .invite-status:empty{display:none}
 @media(max-width:600px){.invite-dialog{width:calc(100% - 24px);max-height:calc(100dvh - 24px)}.invite-header{padding:24px 50px 20px 20px}.invite-header h2{font-size:34px}.invite-body{padding:20px 20px max(20px,env(safe-area-inset-bottom))}}
 @media print{.invite-dialog{display:none!important}}
+.invite-preview{min-height:44px;margin-top:12px;padding:10px 14px;border:1px solid #b9a680;border-radius:7px;background:transparent;color:#302e40;font:13px var(--sans);cursor:pointer}.welcome-note{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}.welcome-date{font-weight:600;line-height:1.7}.guest-welcome h2{overflow-wrap:anywhere}.guest-welcome .invite-header{padding-right:54px}

@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import worker from '../worker.mjs';
+const sqlite = new DatabaseSync(':memory:');
+sqlite.exec(`PRAGMA foreign_keys=ON; CREATE TABLE rounds(id TEXT PRIMARY KEY,status TEXT); CREATE TABLE orders(id TEXT PRIMARY KEY,round_id TEXT REFERENCES rounds(id)); INSERT INTO rounds VALUES('past','archived'),('live','active'); INSERT INTO orders VALUES('old-order','past'),('current-order','live');`);
+const DB = { prepare(sql) { const query={ args:[], bind(...args){this.args=args;return this;}, async first(){return sqlite.prepare(sql).get(...this.args);}, async run(){return sqlite.prepare(sql).run(...this.args);} };return query; }, async batch(queries){sqlite.exec('BEGIN');try{const results=[];for(const query of queries)results.push(await query.run());sqlite.exec('COMMIT');return results;}catch(error){sqlite.exec('ROLLBACK');throw error;}} };
+const request=id=>new Request('https://cafe.example/api/back/delete-event',{method:'POST',headers:{'Content-Type':'application/json','Origin':'https://cafe.example'},body:JSON.stringify({id})});
+assert.equal((await worker.fetch(request('past'),{DB})).status,401);
+assert.equal((await worker.fetch(request('live'),{DB,HOST_OPEN:'true'})).status,409);
+assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM orders').get().n,2);
+assert.equal((await worker.fetch(request('past'),{DB,HOST_OPEN:'true'})).status,200);
+assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM rounds WHERE id='past'").get().n,0);
+assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM orders WHERE round_id='past'").get().n,0);
+assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM orders WHERE round_id='live'").get().n,1);
+assert.equal((await worker.fetch(request('past'),{DB,HOST_OPEN:'true'})).status,409);
+console.log('PASS authenticated deletion, active-event protection, saved-order cleanup, and repeated deletion using an isolated in-memory database');
