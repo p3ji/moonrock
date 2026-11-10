@@ -29,3 +29,9 @@
 - Host passcode is private in `.host-access.txt` / `.dev.vars`; never commit or publish either.
 - Use Wrangler dev on port 4191 for ordering, not the static HTTP server.
 - `scripts/verify-orders.cjs` performs destructive test operations on the local DB only.
+
+## Café robots and lights
+- `iot-feed.mjs` serves committed order metadata and authenticated kitchen preferences; no paid APIs.
+- The sibling `../IoT/cafe-handoff.js` owns hardware reactions. Do not add a second browser-to-localhost trigger.
+- Run `node scripts/verify-iot-handoff.mjs` for isolated Worker/hub checks and `node scripts/verify-iot-kitchen.cjs` against the prepared static preview on port 49193 for mocked browser checks.
+- Rollout requires the Moonrock Worker update, an IoT hub restart, and refreshed kitchen tabs. No schema migration is needed.

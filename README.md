@@ -100,3 +100,38 @@ Personalized invitations support a title, message, gathering date/time, and gues
 History includes **Delete event** for completed events. Confirmation permanently removes that event and its saved orders; active events and saved menu templates remain intact. `node scripts/verify-event-deletion.mjs` verifies the API against an isolated in-memory database.
 
 Choose **Create short link** in the invite editor, then copy/share it or open an email draft. The short URL stores the current invitation on the café server; editing the invitation requires creating a new link. Existing short links keep their original welcome details.
+
+
+### Coordinated order response
+
+The existing guest menu and cart submit orders normally. The local IoT hub then
+reads committed order metadata and plays one queued response: Elegoo lights up and
+turns its head, R2-D2 answers with an onboard chirp and dome movement, and the smart
+lights pulse for two seconds before restoring their previous state. These order
+responses issue no wheel commands. No voice processing, AI service, or paid API
+has been added; the existing switch connection is reused.
+
+The unlocked kitchen has independent **Elegoo**, **R2-D2**, **Lights**, and **Chime**
+controls. Changes save to the café through the authenticated host endpoint. The hub
+picks up new settings on its next poll. Its paired local controls can temporarily
+override settings until the kitchen saves another change.
+
+Keep the local `IoT/server.js` process running and devices connected. The hub polls
+every two seconds, queues bursts, remembers its feed cursor across restarts, and
+ignores orders older than two minutes rather than replaying an offline backlog.
+A first connection establishes a baseline without replaying existing orders.
+Manual robot control and Elegoo privacy mode take priority. Emergency stop cancels
+pending responses. An unavailable device does not prevent the other devices from
+responding or affect saved orders.
+
+Roll out the matching Moonrock Worker and IoT hub changes together, restart the hub,
+and refresh open kitchen tabs. The Worker bundles `iot-feed.mjs`; no new database
+migration or dependency installation is required. The kitchen browser no longer
+sends a second hardware alert to localhost.
+
+Verification: `node scripts/verify-iot-handoff.mjs` exercises actual Worker handlers
+against an isolated in-memory database and simulated devices. For the browser check,
+prepare the site, serve `.cloudflare-dist` on port 49193, and run
+`node scripts/verify-iot-kitchen.cjs`. Both checks avoid live order writes and device
+commands. The device-level checks in the IoT project are
+`node test-cafe-devices.cjs` and `python3 test-cafe-r2d2.py`.
