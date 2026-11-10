@@ -34,4 +34,4 @@
 - `iot-feed.mjs` serves committed order metadata and authenticated kitchen preferences; no paid APIs.
 - The sibling `../IoT/cafe-handoff.js` owns hardware reactions. Do not add a second browser-to-localhost trigger.
 - Run `node scripts/verify-iot-handoff.mjs` for isolated Worker/hub checks and `node scripts/verify-iot-kitchen.cjs` against the prepared static preview on port 49193 for mocked browser checks.
-- Rollout requires the Moonrock Worker update, an IoT hub restart, and refreshed kitchen tabs. No schema migration is needed.
+- Live on Cloudflare as of 2026-11-10; the local IoT hub has been restarted. Refresh open kitchen tabs after releases. No schema migration is needed.
