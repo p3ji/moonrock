@@ -1,0 +1,38 @@
+/* Invitations share the café's paper, midnight, and warm gold. */
+.hero-invite{display:flex;align-items:center;justify-content:space-between;gap:22px;min-height:44px;margin-top:22px;padding:8px 0;border:0;border-bottom:1px solid #a78d5580;background:none;color:#d6c59e;font:12px var(--sans);cursor:pointer}
+.hero-invite:hover{color:#fff2d1;border-color:currentColor}
+.hero-invite:focus-visible{outline:2px solid #d6c59e;outline-offset:5px}
+.invite-dialog{width:min(520px,calc(100% - 32px));max-height:calc(100dvh - 40px);padding:0;border:1px solid #c9b78d;border-radius:16px;background:#f1e8d5;color:#302e40;box-shadow:0 28px 90px #05081466;font:14px/1.6 var(--sans);overscroll-behavior:contain}
+.invite-dialog::backdrop{background:#090f24bd;backdrop-filter:blur(6px)}
+.invite-header{position:relative;padding:28px 54px 22px 28px;border-bottom:1px solid #c9b78d}
+.invite-eyebrow{margin:0 0 10px;color:#716246;font-size:9px;letter-spacing:2px}
+.invite-header h2{margin:0 0 8px;font:italic 38px/1.1 var(--serif);letter-spacing:-.5px}
+.invite-header h2:focus{outline:none}
+.invite-header>p:last-of-type{margin:0;font-size:13px;color:#635944}
+.invite-close{position:absolute;right:10px;top:10px;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:#302e40;font:28px/1 var(--sans);cursor:pointer}
+.invite-close:hover{background:#e5d8bd}
+.invite-body{padding:24px 28px max(24px,env(safe-area-inset-bottom))}
+.invite-dialog label,.invite-link-section h3{display:block;margin:0 0 8px;font-size:13px;font-weight:600}
+.invite-dialog label span{color:#716246;font-weight:400}
+.invite-dialog textarea,.invite-dialog input{display:block;box-sizing:border-box;width:100%;min-height:44px;padding:11px 12px;border:1px solid #b9a680;border-radius:7px;background:#fffaf0;color:#302e40;font:16px/1.5 var(--sans)}
+.invite-dialog textarea{resize:vertical;max-height:180px}
+.invite-dialog textarea::placeholder{color:#796c54;font-size:13px;opacity:1}
+.invite-dialog textarea[aria-invalid="true"]{border-color:#963e37}
+.invite-dialog :is(button,input,textarea):focus-visible{outline:2px solid #7b6032;outline-offset:3px}
+.invite-dialog .invite-help{margin:8px 0 14px;color:#635944;font-size:11px;line-height:1.65}
+.invite-dialog .invite-error{color:#963e37;font-size:12px;margin:8px 0;overflow-wrap:anywhere}
+.invite-error:empty{display:none}
+.invite-primary,.invite-copy,.invite-share{display:flex;align-items:center;justify-content:center;gap:16px;min-height:46px;border:1px solid #151c35;border-radius:7px;padding:11px 18px;font:13px var(--sans);cursor:pointer}
+.invite-primary{width:100%;margin-top:16px;background:#151c35;color:#f4e4bb}
+.invite-primary:hover{background:#2c3450}
+.invite-link-section{margin-top:22px;padding-top:22px;border-top:1px solid #c9b78d}
+.invite-link-section .invite-help{margin-top:0;margin-bottom:12px}
+.invite-link-label{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.invite-link-actions{display:flex;gap:10px;margin-top:10px}
+.invite-copy,.invite-share{flex:1;background:transparent;border-color:#b9a680;color:#302e40}
+.invite-copy:hover,.invite-share:hover{background:#e5d8bd}
+.invite-dialog [hidden]{display:none!important}
+.invite-status{margin:16px 0 0;color:#635944;font-size:12px;overflow-wrap:anywhere}
+.invite-status:empty{display:none}
+@media(max-width:600px){.hero-invite{margin-top:16px;font-size:11px}.invite-dialog{width:calc(100% - 24px);max-height:calc(100dvh - 24px)}.invite-header{padding:24px 50px 20px 20px}.invite-header h2{font-size:34px}.invite-body{padding:20px 20px max(20px,env(safe-area-inset-bottom))}}
+@media print{.hero-invite,.invite-dialog{display:none!important}}

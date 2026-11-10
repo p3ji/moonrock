@@ -19,6 +19,7 @@
 - URL: https://cafe.peji.ca
 - Cloudflare Worker: `moonrock-cafe`; custom domain managed by Cloudflare.
 - Homepage is the Storybook variant.
+- Edit `scripts/build-storybook.mjs` and rebuild to change the homepage; `storybook.html` is generated. Invitations use `invites.js` / `invites.css`.
 - Deploy from this folder: `node scripts/prepare-deploy.mjs` then `npx wrangler deploy`.
 - Verify live model rendering, menu and PDF after deployment.
 
