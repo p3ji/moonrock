@@ -1,7 +1,4 @@
 /* Invitations share the café's paper, midnight, and warm gold. */
-.hero-invite{display:flex;align-items:center;justify-content:space-between;gap:22px;min-height:44px;margin-top:22px;padding:8px 0;border:0;border-bottom:1px solid #a78d5580;background:none;color:#d6c59e;font:12px var(--sans);cursor:pointer}
-.hero-invite:hover{color:#fff2d1;border-color:currentColor}
-.hero-invite:focus-visible{outline:2px solid #d6c59e;outline-offset:5px}
 .invite-dialog{width:min(520px,calc(100% - 32px));max-height:calc(100dvh - 40px);padding:0;border:1px solid #c9b78d;border-radius:16px;background:#f1e8d5;color:#302e40;box-shadow:0 28px 90px #05081466;font:14px/1.6 var(--sans);overscroll-behavior:contain}
 .invite-dialog::backdrop{background:#090f24bd;backdrop-filter:blur(6px)}
 .invite-header{position:relative;padding:28px 54px 22px 28px;border-bottom:1px solid #c9b78d}
@@ -34,5 +31,5 @@
 .invite-dialog [hidden]{display:none!important}
 .invite-status{margin:16px 0 0;color:#635944;font-size:12px;overflow-wrap:anywhere}
 .invite-status:empty{display:none}
-@media(max-width:600px){.hero-invite{margin-top:16px;font-size:11px}.invite-dialog{width:calc(100% - 24px);max-height:calc(100dvh - 24px)}.invite-header{padding:24px 50px 20px 20px}.invite-header h2{font-size:34px}.invite-body{padding:20px 20px max(20px,env(safe-area-inset-bottom))}}
-@media print{.hero-invite,.invite-dialog{display:none!important}}
+@media(max-width:600px){.invite-dialog{width:calc(100% - 24px);max-height:calc(100dvh - 24px)}.invite-header{padding:24px 50px 20px 20px}.invite-header h2{font-size:34px}.invite-body{padding:20px 20px max(20px,env(safe-area-inset-bottom))}}
+@media print{.invite-dialog{display:none!important}}

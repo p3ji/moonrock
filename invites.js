@@ -1,6 +1,7 @@
 (() => {
   const openers = document.querySelectorAll('[data-open-invites]');
-  if (!openers.length) return;
+  const dashboard = document.querySelector('#dashboard');
+  if (!openers.length || !dashboard) return;
 
   // Always share the public café, including from a local or installed preview.
   const inviteUrl = 'https://cafe.peji.ca/#home';
@@ -66,14 +67,11 @@
     emails.removeAttribute('aria-invalid');
   }
 
-  // Event delegation also handles the hero copy in the black-hole arrival preview.
   document.addEventListener('click', event => {
     const opener = event.target.closest('[data-open-invites]');
-    if (!opener || dialog.open) return;
+    if (!opener || dialog.open || dashboard.hidden) return;
     returnFocus = opener;
     clearFeedback();
-    // Stop an in-progress anchor scroll before opening over the animated preview.
-    window.scrollTo({ top: window.scrollY, left: window.scrollX, behavior: 'instant' });
     previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     dialog.showModal();
@@ -91,11 +89,17 @@
     // Keep a personal note while clearing recipients when the invitation closes.
     emails.value = '';
     clearFeedback();
-    const isVisible = button => button?.isConnected && getComputedStyle(button).visibility !== 'hidden' && !button.closest('[inert]');
-    // The arrival preview may have handed over to the real hero while open.
-    const opener = isVisible(returnFocus) ? returnFocus : [...document.querySelectorAll('[data-open-invites]')].find(isVisible);
-    opener?.focus({ preventScroll: true });
+    if (returnFocus?.isConnected && !returnFocus.closest('[hidden]')) returnFocus.focus({ preventScroll: true });
   });
+
+  // Use the kitchen's existing login, lock, and session-expiry transitions.
+  new MutationObserver(() => {
+    if (!dashboard.hidden) return;
+    emails.value = '';
+    message.value = '';
+    clearFeedback();
+    if (dialog.open) dialog.close();
+  }).observe(dashboard, { attributes: true, attributeFilter: ['hidden'] });
   emails.addEventListener('input', clearFeedback);
   message.addEventListener('input', clearFeedback);
   link.addEventListener('focus', () => link.select());

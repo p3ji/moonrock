@@ -8,6 +8,39 @@ const base = process.env.CAFE_URL || 'http://127.0.0.1:4193';
 const seed = JSON.parse(fs.readFileSync(path.join(root, 'src/catalog.json'), 'utf8'));
 const inviteUrl = 'https://cafe.peji.ca/#home';
 
+async function mockKitchen(page, mutations) {
+  const session = { loggedIn: false };
+  const round = { id: 'invite-test', menu_id: seed.id, title: 'Preview gathering', status: 'active', created_at: '2026-11-10T18:00:00Z', menu_title: seed.title, order_count: 0 };
+  const state = { activeRoundId: round.id, selectedRound: round, rounds: [round], menus: [{ ...seed, archived: 0 }], orders: [], totals: [], settings: { lights: false, r2d2: false, chime: false } };
+  // A static preview lacks the Worker's /back route; serve the packaged host page.
+  if (['localhost', '127.0.0.1'].includes(new URL(base).hostname)) {
+    await page.route(url => url.pathname === '/back', route => route.fulfill({ contentType: 'text/html', body: fs.readFileSync(path.join(root, '.cloudflare-dist/back.html'), 'utf8') }));
+  }
+  await page.route('http://localhost:8088/**', route => route.abort());
+  await page.route('**/api/**', route => {
+    const request = route.request(), pathname = new URL(request.url()).pathname;
+    if (pathname === '/api/back/login') {
+      session.loggedIn = true;
+      return route.fulfill({ json: { ok: true } });
+    }
+    if (pathname === '/api/back/logout') {
+      session.loggedIn = false;
+      return route.fulfill({ json: { ok: true } });
+    }
+    if (pathname === '/api/back' && request.method() === 'GET') return route.fulfill({ status: session.loggedIn ? 200 : 401, json: session.loggedIn ? state : { error: 'Enter the host passcode.' } });
+    if (request.method() !== 'GET') mutations.push(request.url());
+    if (pathname === '/api/menu') return route.fulfill({ json: { ...seed, menuId: seed.id, roundId: round.id } });
+    return route.fulfill({ status: 403, json: { error: 'Test blocks writes' } });
+  });
+  return session;
+}
+
+async function unlockKitchen(page) {
+  await page.getByLabel('Host passcode').fill('preview-only');
+  await page.getByRole('button', { name: 'Open kitchen', exact: true }).click();
+  await page.locator('#dashboard').waitFor({ state: 'visible' });
+}
+
 (async () => {
   const browser = await chromium.launch({
     executablePath: '/Users/pushp/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell',
@@ -19,11 +52,7 @@ const inviteUrl = 'https://cafe.peji.ca/#home';
       const page = await context.newPage();
       const errors = [], mutations = [];
       page.on('pageerror', error => errors.push(error.message));
-      await page.route('**/api/**', route => {
-        if (route.request().method() !== 'GET') mutations.push(route.request().url());
-        if (new URL(route.request().url()).pathname === '/api/menu') return route.fulfill({ json: { ...seed, menuId: seed.id, roundId: 'invite-test' } });
-        return route.fulfill({ status: 403, json: { error: 'Test blocks writes' } });
-      });
+      const session = await mockKitchen(page, mutations);
       await page.addInitScript(() => {
         window.testMailto = [];
         window.testShares = [];
@@ -44,7 +73,11 @@ const inviteUrl = 'https://cafe.peji.ca/#home';
         }, true);
       });
 
-      await page.goto(base + '/#home');
+      await page.goto(base + '/back');
+      assert(await page.locator('[data-open-invites]').isHidden(), 'Invitation control must be hidden until login');
+      await page.locator('[data-open-invites]').evaluate(button => button.click());
+      assert.equal(await page.locator('.invite-dialog').evaluate(element => element.open), false);
+      await unlockKitchen(page);
       const opener = page.getByRole('button', { name: 'Invite friends', exact: true });
       await opener.click();
       const dialog = page.getByRole('dialog', { name: 'Pull up another chair.' });
@@ -118,26 +151,42 @@ const inviteUrl = 'https://cafe.peji.ca/#home';
       assert.equal(await dialog.getByLabel('A note from you').inputValue(), note);
       await dialog.getByRole('button', { name: 'Close invitations' }).click();
       await dialog.waitFor({ state: 'hidden' });
-      await page.screenshot({ path: `/tmp/moonrock-home-invites-${width}.png` });
+      await page.screenshot({ path: `/tmp/moonrock-back-invites-${width}.png` });
+
+      await opener.click();
+      await dialog.getByLabel('Invite by email').fill('guest@example.com');
+      session.loggedIn = false;
+      await page.evaluate(() => document.getElementById('refresh').click());
+      await dialog.waitFor({ state: 'hidden' });
+      await page.waitForFunction(() => document.body.style.overflow !== 'hidden' && document.activeElement.id === 'passcode');
+      assert(await page.locator('[data-open-invites]').isHidden());
+      assert.equal(await page.locator('#invite-emails').inputValue(), '');
+      assert.equal(await page.locator('#invite-message').inputValue(), '');
+      await unlockKitchen(page);
+      await page.getByRole('button', { name: 'Lock kitchen', exact: true }).click();
+      await page.locator('#login').waitFor({ state: 'visible' });
+      assert(await page.locator('[data-open-invites]').isHidden());
       assert.deepEqual(mutations, [], 'Invitation must not write to ordering APIs');
       assert.deepEqual(errors, []);
-      console.log(`PASS ${width}px: email validation/BCC/draft, copy/fallback, share/cancel/failure, keyboard/focus, mobile fit, no API writes`);
+      console.log(`PASS ${width}px: back-office login/lock/session expiry, email validation/BCC/draft, copy/fallback, share/cancel/failure, keyboard/focus, mobile fit, no API writes`);
       await context.close();
     }
 
     const page = await browser.newPage({ viewport: { width: 1280, height: 850 } });
-    await page.route('**/api/**', route => route.fulfill({ json: { ...seed, menuId: seed.id, roundId: 'invite-test' } }));
+    await mockKitchen(page, []);
     await page.addInitScript(() => Object.defineProperty(navigator, 'share', { configurable: true, value: undefined }));
-    await page.goto(base + '/');
-    await page.locator('.blackhole-stage.loaded').waitFor();
-    await page.evaluate(() => scrollTo({ top: (document.querySelector('.blackhole-stage').offsetHeight - innerHeight) * .94, behavior: 'instant' }));
-    await page.waitForFunction(() => document.querySelector('.landing-preview')?.inert === false);
-    await page.locator('.landing-preview [data-open-invites]').click();
+    await page.goto(base + '/back');
+    await unlockKitchen(page);
+    await page.getByRole('button', { name: 'Invite friends', exact: true }).click();
     await page.getByRole('dialog').waitFor({ state: 'visible' });
     assert(await page.locator('.invite-share').isHidden());
     await page.getByRole('button', { name: 'Close invitations' }).click();
     await page.getByRole('dialog').waitFor({ state: 'hidden' });
-    console.log('PASS arrival preview opens invitations; unsupported native sharing is hidden');
+    await page.goto(base + '/#home');
+    assert.equal(await page.locator('[data-open-invites]').count(), 0);
+    assert.equal(await page.locator('.invite-dialog').count(), 0);
+    assert.equal(await page.locator('script[src*="invites.js"], link[href*="invites.css"]').count(), 0);
+    console.log('PASS public home page has no invitation controls or assets; unsupported native sharing is hidden in the back office');
   } finally {
     await browser.close();
   }
