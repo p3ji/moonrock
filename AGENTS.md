@@ -11,6 +11,7 @@
 
 ## Conventions & gotchas
 - Keep this file short; put goals/backlog in the linked Brain note, not here.
+- **Local LLM Routing (M5 Ultra)**: Delegate isolated menu item, price, description, copy, and catalog array edits to the local `qwen3.8-27b` model via `local-privacy-llm` (`delegate_local_task`). Reserve cloud frontier models for Worker/D1 migrations, IoT handoffs, and multi-file UI architecture.
 
 ## Do NOT
 - Commit secrets (`.env`) or large build artifacts.

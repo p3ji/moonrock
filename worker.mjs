@@ -3,8 +3,11 @@ const json=(data,status=200,headers={})=>Response.json(data,{status,headers:{'Ca
 const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status})};
 const text=(v,max=100)=>typeof v==='string'&&v.trim()&&v.trim().length<=max?v.trim():fail('Please check the entered text.');
 const sha=async s=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))).map(b=>b.toString(16).padStart(2,'0')).join('');
+function safeEqual(a,b){if(typeof a!=='string'||typeof b!=='string')return false;const ab=new TextEncoder().encode(a),bb=new TextEncoder().encode(b);if(ab.length!==bb.length)return false;let diff=0;for(let i=0;i<ab.length;i++)diff|=ab[i]^bb[i];return diff===0;}
+const ensuredShortInvitesDbs=new WeakSet();
+async function ensureShortInvitesTable(db){if(ensuredShortInvitesDbs.has(db))return;await db.prepare('CREATE TABLE IF NOT EXISTS short_invites(id TEXT PRIMARY KEY,details TEXT NOT NULL)').run();ensuredShortInvitesDbs.add(db);}
 async function signature(payload,secret){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);return Array.from(new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(payload)))).map(b=>b.toString(16).padStart(2,'0')).join('');}
-async function host(req,env){if(env.HOST_OPEN==='true')return true;if(!env.HOST_PASSCODE)return false;const value=req.headers.get('Cookie')?.match(/(?:^|;\s*)moonrock_host=([^;]+)/)?.[1];if(!value)return false;const [expiry,sig]=value.split('.');return /^\d+$/.test(expiry)&&Number(expiry)>Date.now()&&sig===await signature(expiry,env.HOST_PASSCODE);}
+async function host(req,env){if(env.HOST_OPEN==='true')return true;if(!env.HOST_PASSCODE)return false;const value=req.headers.get('Cookie')?.match(/(?:^|;\s*)moonrock_host=([^;]+)/)?.[1];if(!value)return false;const [expiry,sig]=value.split('.');return /^\d+$/.test(expiry)&&Number(expiry)>Date.now()&&safeEqual(sig,await signature(expiry,env.HOST_PASSCODE));}
 async function body(req){if(Number(req.headers.get('Content-Length'))>65536)fail('Request too large.',413);const raw=await req.text();if(raw.length>65536)fail('Request too large.',413);try{return JSON.parse(raw)}catch{fail('Invalid request.')}}
 function validateMenu(value){if(!Array.isArray(value)||!value.length||value.length>8)fail('Use between 1 and 8 sections.');const allIds=new Set();return value.map((section,index)=>{if(!Array.isArray(section.items)||!section.items.length||section.items.length>50)fail('Each section needs 1–50 items.');return{id:`section-${index+1}`,title:text(section.title,60),zh:typeof section.zh==='string'?section.zh.trim().slice(0,60):'',items:section.items.map((item,i)=>{const id=`section-${index+1}-item-${i+1}`;allIds.add(id);const options=Array.isArray(item.options)?item.options:[];if(options.length>12)fail('Use at most 12 choices per item.');return{id,en:text(item.en,100),zh:typeof item.zh==='string'?item.zh.trim().slice(0,100):'',options:options.map((o,j)=>({id:`option-${j+1}`,en:text(o.en,80),zh:typeof o.zh==='string'?o.zh.trim().slice(0,80):''}))}})}})}
 async function active(env){return env.DB.prepare("SELECT r.id,r.title,r.menu_id,m.sections,m.title AS menu_title FROM rounds r JOIN menus m ON m.id=r.menu_id WHERE r.status='active'").first()}
@@ -46,7 +49,7 @@ try{
   if(env.HOST_OPEN==='true')return json({ok:true});if(!env.HOST_PASSCODE)fail('Host access has not been configured.',503);
   const key=await sha(req.headers.get('CF-Connecting-IP')||'local'),window=Math.floor(Date.now()/900000);const attempt=await env.DB.prepare('SELECT count,window FROM login_attempts WHERE key=?').bind(key).first();if(attempt&&attempt.window===window&&attempt.count>=10)fail('Too many attempts. Try again in 15 minutes.',429);
   const b=await body(req);await env.DB.prepare('INSERT INTO login_attempts(key,count,window) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=CASE WHEN window=? THEN count+1 ELSE 1 END,window=?').bind(key,window,window,window).run();
-  if(typeof b.passcode!=='string'||await sha(b.passcode)!==await sha(env.HOST_PASSCODE))fail('Incorrect host passcode.',401);
+  if(typeof b.passcode!=='string'||!safeEqual(await sha(b.passcode),await sha(env.HOST_PASSCODE)))fail('Incorrect host passcode.',401);
   await env.DB.prepare('DELETE FROM login_attempts WHERE key=?').bind(key).run();const expiry=String(Date.now()+86400000);return json({ok:true},200,{'Set-Cookie':`moonrock_host=${expiry}.${await signature(expiry,env.HOST_PASSCODE)}; Path=/api/back; HttpOnly; ${url.protocol==='https:'?'Secure; ':''}SameSite=Strict; Max-Age=86400`})
  }
  if(!path.startsWith('/api/back'))fail('Not found.',404);if(!await host(req,env))fail('Enter the host passcode.',401);
@@ -55,7 +58,7 @@ try{
   const b=await body(req),details={title:text(b.title,100),message:typeof b.message==='string'?b.message.slice(0,500):'',when:typeof b.when==='string'?b.when.slice(0,40):'',zone:typeof b.zone==='string'?b.zone.slice(0,100):'America/Toronto'};
   if(details.when&&!Number.isFinite(Date.parse(details.when)))fail('Check the gathering date.');
   try{new Intl.DateTimeFormat('en',{timeZone:details.zone})}catch{fail('Check the time zone.')}
-  await env.DB.prepare('CREATE TABLE IF NOT EXISTS short_invites(id TEXT PRIMARY KEY,details TEXT NOT NULL)').run();
+  await ensureShortInvitesTable(env.DB);
   const id=crypto.randomUUID().replaceAll('-','').slice(0,24);
   await env.DB.prepare('INSERT INTO short_invites(id,details) VALUES(?,?)').bind(id,JSON.stringify(details)).run();
   return json({url:url.origin+'/i/'+id},201);
@@ -65,7 +68,7 @@ try{
   const current=await active(env);const rounds=(await env.DB.prepare('SELECT r.*,m.title AS menu_title,(SELECT COUNT(*) FROM orders o WHERE o.round_id=r.id) AS order_count FROM rounds r JOIN menus m ON m.id=r.menu_id ORDER BY r.created_at DESC,r.rowid DESC').all()).results;
   const selected=url.searchParams.get('round')||current?.id;const selectedRound=rounds.find(r=>r.id===selected);if(selected&&!selectedRound)fail('Order round not found.',404);
   const menus=(await env.DB.prepare('SELECT * FROM menus ORDER BY created_at DESC,rowid DESC').all()).results.map(m=>({...m,sections:JSON.parse(m.sections)}));
-  const orders=selected?(await env.DB.prepare('SELECT id,round_id,guest_name,items,note,fulfilled_items,completed,created_at FROM orders WHERE round_id=? ORDER BY created_at DESC,rowid DESC').bind(selected).all()).results.map(o=>({...o,items:JSON.parse(o.items),fulfilledItems:JSON.parse(o.fulfilled_items||'[]'),completed:!!o.completed})):[];
+  const orders=selected?(await env.DB.prepare('SELECT id,round_id,guest_name,items,note,fulfilled_items,completed,created_at FROM orders WHERE round_id=? ORDER BY created_at DESC,rowid DESC LIMIT 500').bind(selected).all()).results.map(o=>({...o,items:JSON.parse(o.items),fulfilledItems:JSON.parse(o.fulfilled_items||'[]'),completed:!!o.completed})):[];
   const totals=new Map();for(const o of orders)for(const [index,item] of o.items.entries()){const key=item.itemId+':'+item.optionId;const prev=totals.get(key);totals.set(key,{...item,quantity:(prev?.quantity||0)+item.quantity,sent:(prev?.sent||0)+(o.fulfilledItems.includes(index)?item.quantity:0)})}
   const preferences=await readSettings(env.DB);
   return json({activeRoundId:current?.id||null,selectedRound,rounds,menus,orders,totals:[...totals.values()],...preferences})

@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS short_invites (
+  id TEXT PRIMARY KEY,
+  details TEXT NOT NULL
+);

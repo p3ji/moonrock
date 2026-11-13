@@ -7,3 +7,11 @@
 
 .order-dialog #order-title:focus{outline:none}
 .guest-name label span{color:#716246;font-size:11px}.guest-name textarea{display:block;width:100%;min-height:82px;resize:vertical;background:#fffaf0;border:1px solid #b7a176;padding:10px;font:15px/1.5 var(--sans);color:#302e40}.guest-name label:not(:first-child){margin-top:22px}.guest-name #note-help{margin-top:6px}.receipt-note{white-space:pre-line;padding:12px;background:#e7ddc5;font-size:12px;line-height:1.6}.receipt-note strong{font-weight:600}
+
+
+/* Keep dynamic sections and long coffee choices inside the menu columns. */
+.menu-columns{grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,1fr)}
+.menu-section{min-width:0}
+.menu-nav{flex-wrap:wrap;row-gap:0}
+.item-choice{box-sizing:border-box;width:100%;max-width:100%;min-width:0;text-overflow:ellipsis}
+@media(min-width:601px) and (max-width:900px){.menu-columns:has(>[id^="section-"]){grid-template-columns:repeat(2,minmax(0,1fr))}}
