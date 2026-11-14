@@ -135,3 +135,9 @@ prepare the site, serve `.cloudflare-dist` on port 49193, and run
 `node scripts/verify-iot-kitchen.cjs`. Both checks avoid live order writes and device
 commands. The device-level checks in the IoT project are
 `node test-cafe-devices.cjs` and `python3 test-cafe-r2d2.py`.
+
+### Afternoon Tea saved menu
+
+Migration `0010_afternoon_tea.sql` adds **Afternoon Tea** to the kitchen's saved menus, with eight foods and the existing tea and coffee choices. Select it when starting a gathering; adding the template preserves the active gathering and existing orders. Reapplying the migration preserves host edits.
+
+Run `node scripts/verify-afternoon-tea.mjs` for an isolated migration, ordering and IoT-feed check. `node scripts/verify-iot-live.mjs --operate-devices` operates real devices through the local hub and checks response telemetry and switch restoration. Physical R2-D2 movement and sound require observation; its handoff does not publish intermediate dome angles.

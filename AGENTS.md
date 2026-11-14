@@ -37,3 +37,6 @@
 - Run `node scripts/verify-iot-handoff.mjs` for isolated Worker/hub checks and `node scripts/verify-iot-kitchen.cjs` against the prepared static preview on port 49193 for mocked browser checks.
 - Live on Cloudflare as of 2026-11-10; the local IoT hub has been restarted. Refresh open kitchen tabs after releases. No schema migration is needed.
 - Elegoo order responses are disabled after a physical head-turn test showed no movement. Keep R2-D2 and lights active; a Wi-Fi connection or cached servo angle does not verify physical actuation.
+
+## Open bugs
+- 2026-11-14 live café alert: R2-D2 initially reported connected, then disconnected with Bleak `Service Discovery has not been performed yet` in `/private/tmp/moonrock-iot-bridge.log`. Mocked handoff tests pass; physical R2-D2 response remains unverified. Diagnose in the sibling IoT project before declaring hardware healthy.
